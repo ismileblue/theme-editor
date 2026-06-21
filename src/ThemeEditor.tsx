@@ -62,6 +62,7 @@ const translations = {
     btnSettings: "Button Settings",
     btnText: "Button Text",
     actionLabel: "Action",
+    focusIndexLabel: "Focus Order (Index)", // 🚀 영문 추가
     iconLabel: "Icon (Image Preview)",
     iconPlaceholder: "icon_name.png",
     imageNotice: "※ PC images will be previewed and included in the ZIP.",
@@ -144,6 +145,7 @@ const translations = {
     btnSettings: "버튼 설정",
     btnText: "버튼 글자 (Text)",
     actionLabel: "실행 동작 (Action)",
+    focusIndexLabel: "포커스 순서 (고유 번호)", // 🚀 한글 추가
     iconLabel: "아이콘 (Icon)",
     iconPlaceholder: "icon_name.png",
     imageNotice: "※ PC에서 이미지를 선택하면 표시되며, 압축 파일(.zip)에 포함됩니다.",
@@ -226,6 +228,7 @@ const translations = {
     btnSettings: "ボタン設定",
     btnText: "ボタンテキスト",
     actionLabel: "動作 (Action)",
+    focusIndexLabel: "フォーカス順序 (番号)",
     iconLabel: "アイコン (Icon)",
     iconPlaceholder: "icon_name.png",
     imageNotice: "※ 画像はプレビューされ、ZIPに自動的に含まれます。",
@@ -308,6 +311,7 @@ const translations = {
     btnSettings: "按钮设置",
     btnText: "按钮文本",
     actionLabel: "动作 (Action)",
+    focusIndexLabel: "焦点顺序 (编号)",
     iconLabel: "图标 (Icon)",
     iconPlaceholder: "icon_name.png",
     imageNotice: "※ 选择电脑中的图片后将进行预览，并包含在ZIP中。",
@@ -357,6 +361,7 @@ export default function ThemeEditor() {
   const [language, setLanguage] = useState('en'); 
   const t = (key) => translations[language]?.[key] || translations['en'][key] || key; 
 
+  // 🚀 초기 데이터에 버튼별 focus_index 명시 추가
   const [themeData, setThemeData] = useState({
     name: "Classic Split (480x360)",
     font: "",
@@ -389,28 +394,32 @@ export default function ThemeEditor() {
         x: 15, y: 55, width: 180, height: 45,
         text_normal: "Now Playing", icon_normal: "icon_now_playing.png",
         gravity: "top|left", text_size: 16,
-        bg_color: "", radius: -1, padding: 0, action: "OPEN_PLAYER"
+        bg_color: "", radius: -1, padding: 0, action: "OPEN_PLAYER",
+        focus_index: 0
       },
       {
         id: "btn_music", type: "button",
         x: 15, y: 115, width: 180, height: 45,
         text_normal: "Library", icon_normal: "icon_music.png",
         gravity: "top|left", text_size: 16,
-        bg_color: "", radius: -1, padding: 0, action: "OPEN_BROWSER"
+        bg_color: "", radius: -1, padding: 0, action: "OPEN_BROWSER",
+        focus_index: 1
       },
       {
         id: "btn_bt", type: "button",
         x: 15, y: 175, width: 180, height: 45,
         text_normal: "Bluetooth", icon_normal: "icon_bluetooth.png",
         gravity: "top|left", text_size: 16,
-        bg_color: "", radius: -1, padding: 0, action: "OPEN_BLUETOOTH"
+        bg_color: "", radius: -1, padding: 0, action: "OPEN_BLUETOOTH",
+        focus_index: 2
       },
       {
         id: "btn_set", type: "button",
         x: 15, y: 235, width: 180, height: 45,
         text_normal: "Settings", icon_normal: "icon_setting.png",
         gravity: "top|left", text_size: 16,
-        bg_color: "", radius: -1, padding: 0, action: "OPEN_SETTINGS"
+        bg_color: "", radius: -1, padding: 0, action: "OPEN_SETTINGS",
+        focus_index: 3
       }
     ]
   });
@@ -584,7 +593,8 @@ export default function ThemeEditor() {
       x: 0, y: 0, width: 150, height: 50,
       gravity: "top|left",
       text_normal: "New Item", text_size: 16,
-      bg_color: "", radius: -1, padding: 0, action: "OPEN_PLAYER"
+      bg_color: "", radius: -1, padding: 0, action: "OPEN_PLAYER",
+      focus_index: themeData.main_menu.filter(el => el.type === 'button').length // 새로 추가 시 제일 끝 번호 자동 부여!
     };
     
     setThemeData({
@@ -609,6 +619,7 @@ export default function ThemeEditor() {
       const JSZip = await loadJSZip();
       const zip = new JSZip();
 
+      // 🚀 [수정] 오토매틱 계산 로직 삭제! 회원이 직접 입력한 themeData를 그대로 굽습니다!
       zip.file("config.json", JSON.stringify(themeData, null, 2));
 
       Object.values(uploadedFiles).forEach(file => {
@@ -1248,7 +1259,6 @@ export default function ThemeEditor() {
                   <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm placeholder-neutral-600" placeholder={t('radiusPlaceholder')} value={selectedElement.radius !== undefined ? selectedElement.radius : -1} onChange={(e) => handleElementChange(selectedElement.id, 'radius', parseInt(e.target.value))} />
                 </div>
                 
-                {/* 순수 박스가 아닐 때만 글씨와 패딩 옵션을 보여줍니다. */}
                 {selectedElement.type !== 'box' && (
                   <>
                     <div>
@@ -1303,11 +1313,18 @@ export default function ThemeEditor() {
                     <div className="col-span-2 border-t border-neutral-700 pt-4 mt-2">
                       <span className="text-xs font-bold text-neutral-300 uppercase">{t('btnSettings')}</span>
                     </div>
+                    
+                    {/* 🚀 포커스 고유 번호 수동 입력 필드 추가 */}
                     <div className="col-span-2">
+                      <label className="block text-xs text-neutral-400 mb-1">{t('focusIndexLabel')}</label>
+                      <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm font-mono text-cyan-400" value={selectedElement.focus_index !== undefined ? selectedElement.focus_index : 0} onChange={(e) => handleElementChange(selectedElement.id, 'focus_index', parseInt(e.target.value))} />
+                    </div>
+
+                    <div className="col-span-2 mt-2">
                       <label className="block text-xs text-neutral-400 mb-1">{t('btnText')}</label>
                       <input type="text" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.text_normal || ''} onChange={(e) => handleElementChange(selectedElement.id, 'text_normal', e.target.value)} />
                     </div>
-                    <div>
+                    <div className="col-span-2 mt-2">
                       <label className="block text-xs text-neutral-400 mb-1">{t('actionLabel')}</label>
                       <select className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.action || 'OPEN_PLAYER'} onChange={(e) => handleElementChange(selectedElement.id, 'action', e.target.value)}>
                         <option value="OPEN_PLAYER">{t('actNowPlaying')}</option>
@@ -1325,7 +1342,7 @@ export default function ThemeEditor() {
                         <option value="OPEN_STORAGE_INFO">{t('actStorage')}</option>
                       </select>
                     </div>
-                    <div className="col-span-2">
+                    <div className="col-span-2 mt-2">
                       <label className="block text-xs text-neutral-400 mb-1">{t('iconLabel')}</label>
                       <div className="flex gap-2">
                         <input type="text" className="flex-1 bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm placeholder-neutral-600" placeholder={t('iconPlaceholder')} value={selectedElement.icon_normal || ''} onChange={(e) => handleElementChange(selectedElement.id, 'icon_normal', e.target.value)} />
