@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import JSZip from 'jszip';
 import { Download, Plus, Trash2, Settings, List, Smartphone, Type, Image as ImageIcon, ChevronLeft, MousePointer2, Play, Upload } from 'lucide-react';
@@ -522,12 +521,50 @@ export default function ThemeEditor() {
 
   const handleImageUpload = (id, file, targetField) => {
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPreviewImages(prev => ({ ...prev, [id]: url }));
-    setUploadedFiles(prev => ({ ...prev, [file.name]: file }));
-    if (targetField) {
-      handleElementChange(id, targetField, file.name); 
-    }
+
+    // 🚀 이미지 자동 압축 엔진 (고해상도 사진 메모리 폭발 및 렌더링 실패 방지!)
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 800; // 안드로이드가 가장 빠르고 가볍게 처리하는 최대 해상도
+        let width = img.width;
+        let height = img.height;
+
+        // 원본 비율을 유지하며 크기 줄이기
+        if (width > height) {
+          if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+        } else {
+          if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // 줄어든 이미지를 파일로 변환하여 에디터에 등록
+        canvas.toBlob((blob) => {
+          if(!blob) return;
+          const resizedFile = new File([blob], file.name, { type: file.type || 'image/jpeg' });
+          const url = URL.createObjectURL(resizedFile);
+
+          setPreviewImages(prev => ({ ...prev, [id]: url }));
+          setUploadedFiles(prev => ({ ...prev, [file.name]: resizedFile }));
+
+          if (targetField) {
+            handleElementChange(id, targetField, file.name);
+            // 🚀 [백업] 안드로이드 파서가 icon_normal을 뱉어낼 경우를 대비해 text_normal에도 몰래 파일명을 꽂아줍니다!
+            if (targetField === 'icon_normal') {
+              handleElementChange(id, 'text_normal', file.name);
+            }
+          }
+        }, file.type || 'image/jpeg', 0.85); // 85% 고품질 압축
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleFontUpload = (e) => {
