@@ -758,13 +758,26 @@ export default function ThemeEditor() {
     boxStyle.cursor = isPlayMode ? 'default' : (dragInfo.isDragging && dragInfo.id === el.id ? 'grabbing' : 'grab');
 
     if (el.type === 'box') {
+      const previewImg = previewImages[el.id];
       return (
         <div 
           key={el.id} 
-          style={boxStyle} 
+          style={{
+            ...boxStyle, 
+            overflow: 'hidden', // 🚀 둥근 모서리 밖으로 이미지가 삐져나가지 않게 자름
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }} 
           onMouseDown={(e) => handlePointerDown(e, el.id)}
           onTouchStart={(e) => handlePointerDown(e, el.id)}
-        />
+        >
+          {previewImg ? (
+            <img src={previewImg} alt="box_img" draggable="false" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+          ) : el.icon_normal ? (
+            <div style={{width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+               <ImageIcon color="rgba(255,255,255,0.3)" size={32} />
+            </div>
+          ) : null}
+        </div>
       );
     }
 
@@ -775,7 +788,19 @@ export default function ThemeEditor() {
       
       const isIconOnly = !el.text_normal || el.text_normal.trim() === '';
       const previewImg = previewImages[el.id];
-
+// 🚀 [추가] 버튼 내부 텍스트 정렬 로직
+      let jc = 'flex-start';
+      let ai = 'center';
+      let ta = el.text_align ? el.text_align.toLowerCase() : 'left';
+      
+      if (isIconOnly) {
+         jc = 'center';
+      } else {
+         if (ta === 'center') { jc = 'center'; ai = 'center'; }
+         else if (ta === 'right') { jc = 'flex-end'; ai = 'center'; }
+         else if (ta === 'top') { jc = 'center'; ai = 'flex-start'; }
+         else if (ta === 'bottom') { jc = 'center'; ai = 'flex-end'; }
+      }
       return (
         <div 
           key={el.id} style={boxStyle} 
@@ -1111,6 +1136,17 @@ export default function ThemeEditor() {
                   <label className="block text-xs text-neutral-400 mb-1">{t('defaultRadius')}</label>
                   <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm font-mono" value={themeData.button_radius} onChange={(e) => handleGlobalChange('button_radius', parseInt(e.target.value))} />
                 </div>
+                {/* 🚀 [여기 추가됨!] 버튼 내부 텍스트 정렬 드롭다운 */}
+                    <div className="col-span-2 mt-2">
+                      <label className="block text-xs text-neutral-400 mb-1">{t('textAlign')}</label>
+                      <select className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.text_align || 'left'} onChange={(e) => handleElementChange(selectedElement.id, 'text_align', e.target.value)}>
+                        <option value="left">Left (왼쪽)</option>
+                        <option value="center">Center (가운데)</option>
+                        <option value="right">Right (오른쪽)</option>
+                        <option value="top">Top (위쪽)</option>
+                        <option value="bottom">Bottom (아래쪽)</option>
+                      </select>
+                    </div>
               </div>
             </div>
           )}
@@ -1258,7 +1294,25 @@ export default function ThemeEditor() {
                   <label className="block text-xs text-neutral-400 mb-1">{t('radiusLabel')}</label>
                   <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm placeholder-neutral-600" placeholder={t('radiusPlaceholder')} value={selectedElement.radius !== undefined ? selectedElement.radius : -1} onChange={(e) => handleElementChange(selectedElement.id, 'radius', parseInt(e.target.value))} />
                 </div>
-                
+                {/* 🚀 [추가] 박스 전용 이미지 업로드 기능 */}
+                {selectedElement.type === 'box' && (
+                  <>
+                    <div className="col-span-2 border-t border-neutral-700 pt-4 mt-2">
+                      <span className="text-xs font-bold text-neutral-300 uppercase">Box Image (Optional)</span>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-xs text-neutral-400 mb-1">{t('iconLabel')}</label>
+                      <div className="flex gap-2">
+                        <input type="text" className="flex-1 bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm placeholder-neutral-600" placeholder={t('iconPlaceholder')} value={selectedElement.icon_normal || ''} onChange={(e) => handleElementChange(selectedElement.id, 'icon_normal', e.target.value)} />
+                        <label className="bg-neutral-700 hover:bg-neutral-600 text-white rounded px-3 py-2 cursor-pointer flex items-center justify-center transition-colors" title={t('loadImage')}>
+                          <ImageIcon size={16} />
+                          <input type="file" accept="image/png, image/jpeg, image/webp" className="hidden" onChange={(e) => handleImageUpload(selectedElement.id, e.target.files[0], 'icon_normal')} />
+                        </label>
+                      </div>
+                      <p className="text-[10px] text-neutral-500 mt-1">{t('imageNotice')}</p>
+                    </div>
+                  </>
+                )}
                 {selectedElement.type !== 'box' && (
                   <>
                     <div>
