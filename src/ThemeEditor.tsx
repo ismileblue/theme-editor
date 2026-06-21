@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import JSZip from 'jszip'; // 추가된 부분
 import { Download, Plus, Trash2, Settings, List, Smartphone, Type, Image as ImageIcon, ChevronLeft, MousePointer2, Play, Upload } from 'lucide-react';
+
 // 다국어 번역 사전
 const translations = {
   en: {
@@ -8,7 +9,7 @@ const translations = {
     preview: "Preview",
     editMode: "Edit Mode",
     playMode: "Play Mode",
-    clickToEdit: "Click or drag an element to edit/move. (Android Hex: #FF000000 = Opaque Black)",
+    clickToEdit: "Click or drag an element to edit/move.",
     playModeActive: "Play Mode is active. Hover over buttons!",
     globalSettings: "Global Settings",
     elements: "Elements",
@@ -74,15 +75,23 @@ const translations = {
     actNowPlaying: "Now Playing",
     actLibrary: "Music Library",
     actBluetooth: "Bluetooth",
-    actSettings: "Settings",
-    actWeb: "Web Server"
+    actSettings: "Settings Menu",
+    actWeb: "Web Server",
+    actWifi: "Wi-Fi Settings",
+    actBrightness: "Display Brightness",
+    actStorage: "Storage Info",
+    actWidget: "Widget Settings",
+    actBg: "Background Settings",
+    actTheme: "Theme Selection",
+    actTime: "Date & Time Settings",
+    actRoot: "Root Folder (File Manager)"
   },
   ko: {
     language: "언어",
     preview: "미리보기",
     editMode: "편집 모드",
     playMode: "플레이 모드",
-    clickToEdit: "요소를 클릭하거나 드래그하여 이동/수정하세요. (Android Hex: #FF000000 = 불투명 검정)",
+    clickToEdit: "요소를 클릭하거나 드래그하여 이동/수정하세요.",
     playModeActive: "플레이 모드 동작 중입니다. 버튼에 마우스를 올려보세요!",
     globalSettings: "글로벌 설정",
     elements: "메뉴/위젯 요소",
@@ -148,15 +157,23 @@ const translations = {
     actNowPlaying: "Now Playing (현재 재생)",
     actLibrary: "Music Library (음악 목록)",
     actBluetooth: "Bluetooth (블루투스)",
-    actSettings: "Settings (설정)",
-    actWeb: "Web Server (웹 서버)"
+    actSettings: "Settings (설정 메인)",
+    actWeb: "Web Server (웹 서버)",
+    actWifi: "Wi-Fi 설정 (바로가기)",
+    actBrightness: "화면 밝기 (바로가기)",
+    actStorage: "저장소 용량 정보 (바로가기)",
+    actWidget: "위젯 ON/OFF 설정 (바로가기)",
+    actBg: "배경화면 설정 (바로가기)",
+    actTheme: "테마 선택 화면 (바로가기)",
+    actTime: "날짜 및 시간 설정 (바로가기)",
+    actRoot: "전체 폴더 (파일 탐색기)"
   },
   ja: {
     language: "言語",
     preview: "プレビュー",
     editMode: "編集モード",
     playMode: "プレイモード",
-    clickToEdit: "要素をクリックまたはドラッグして編集・移動します。(Android Hex例: #FF000000 = 不透明な黒)",
+    clickToEdit: "要素をクリックまたはドラッグして編集・移動します。",
     playModeActive: "プレイモード起動中。ボタンにカーソルを合わせてください！",
     globalSettings: "グローバル設定",
     elements: "要素設定",
@@ -223,14 +240,22 @@ const translations = {
     actLibrary: "Music Library (音楽)",
     actBluetooth: "Bluetooth",
     actSettings: "Settings (設定)",
-    actWeb: "Web Server"
+    actWeb: "Web Server",
+    actWifi: "Wi-Fi 設定",
+    actBrightness: "画面の明るさ",
+    actStorage: "ストレージ情報",
+    actWidget: "ウィジェット設定",
+    actBg: "背景設定",
+    actTheme: "テーマ選択",
+    actTime: "日付と時刻の設定",
+    actRoot: "ルートフォルダ (ファイル管理)"
   },
   zh: {
     language: "语言",
     preview: "预览",
     editMode: "编辑模式",
     playMode: "播放模式",
-    clickToEdit: "点击或拖动元素进行编辑或移动。(Android Hex 例: #FF000000 = 不透明黑色)",
+    clickToEdit: "点击或拖动元素进行编辑或移动。",
     playModeActive: "播放模式已激活。请将鼠标悬停在按钮上！",
     globalSettings: "全局设置",
     elements: "元素设置",
@@ -297,7 +322,15 @@ const translations = {
     actLibrary: "Music Library (音乐库)",
     actBluetooth: "Bluetooth (蓝牙)",
     actSettings: "Settings (设置)",
-    actWeb: "Web Server (Web服务器)"
+    actWeb: "Web Server (Web服务器)",
+    actWifi: "Wi-Fi 设置",
+    actBrightness: "显示亮度",
+    actStorage: "存储信息",
+    actWidget: "小部件设置",
+    actBg: "背景设置",
+    actTheme: "主题选择",
+    actTime: "日期和时间设置",
+    actRoot: "根目录 (文件管理)"
   }
 };
 
@@ -310,7 +343,14 @@ const androidHexToWeb = (hex) => {
 };
 
 const loadJSZip = async () => {
-  return JSZip;
+  if (window.JSZip) return window.JSZip;
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    script.onload = () => resolve(window.JSZip);
+    script.onerror = () => reject(new Error("Failed to load JSZip"));
+    document.head.appendChild(script);
+  });
 };
 
 export default function ThemeEditor() {
@@ -386,7 +426,7 @@ export default function ThemeEditor() {
   const [fontFamilyName, setFontFamilyName] = useState(''); 
   const [isZipping, setIsZipping] = useState(false);
 
-  const [dragInfo, setDragInfo] = useState({ isDragging: false, id: null, startX: 0, startY: 0, initialElementX: 0, initialElementY: 0, isClick: true });
+  const [dragInfo, setDragInfo] = useState({ isDragging: false, id: null, startX: 0, startY: 0, initialElementX: 0, initialElementY: 0 });
 
   useEffect(() => {
     const handlePointerMove = (e) => {
@@ -394,11 +434,6 @@ export default function ThemeEditor() {
       const clientX = e.clientX ?? (e.touches && e.touches.length > 0 ? e.touches[0].clientX : undefined);
       const clientY = e.clientY ?? (e.touches && e.touches.length > 0 ? e.touches[0].clientY : undefined);
       if (clientX === undefined) return;
-
-      // 움직임이 감지되면 클릭이 아니라 드래그로 판정
-      if (dragInfo.isClick && (Math.abs(clientX - dragInfo.startX) > 5 || Math.abs(clientY - dragInfo.startY) > 5)) {
-        setDragInfo(prev => ({ ...prev, isClick: false }));
-      }
 
       setThemeData(prev => {
         const el = prev.main_menu.find(elem => elem.id === dragInfo.id);
@@ -423,18 +458,8 @@ export default function ThemeEditor() {
       });
     };
 
-    const handlePointerUp = (e) => {
+    const handlePointerUp = () => {
       if (dragInfo.isDragging) {
-        
-        // 🚀 버튼이고, 드래그가 아닌 순수 클릭이었으며, 현재 플레이 모드라면 액션(Action) 발동!
-        if (dragInfo.isClick && isPlayMode && dragInfo.id) {
-            const el = themeData.main_menu.find(item => item.id === dragInfo.id);
-            if (el && el.type === 'button') {
-                 // 앱 내에서는 동작할 수 없으므로 액션을 Alert 로 띄워줍니다.
-                 alert(`[Play Mode Action Triggered]\nAction: ${el.action}`);
-            }
-        }
-
         setDragInfo(prev => ({ ...prev, isDragging: false, id: null }));
       }
     };
@@ -460,7 +485,7 @@ export default function ThemeEditor() {
       window.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
     };
-  }, [dragInfo, isPlayMode, themeData.main_menu]); // 의존성 배열에 필요 요소 추가
+  }, [dragInfo]);
 
   const handleImportJSON = (e) => {
     const file = e.target.files[0];
@@ -530,14 +555,10 @@ export default function ThemeEditor() {
   };
 
   const handlePointerDown = (e, id) => {
-    // 플레이 모드일 때도 꾹 눌러서 클릭(Action)을 발동시키기 위해 진행합니다!
-    // 대신 드래그 이동 자체는 useEffect 내부 로직에 의해 블록됩니다.
+    if (isPlayMode) return;
     e.stopPropagation();
-    
-    if (!isPlayMode) {
-        setSelectedId(id);
-        setActiveTab('elements');
-    }
+    setSelectedId(id);
+    setActiveTab('elements');
 
     const el = themeData.main_menu.find(item => item.id === id);
     const clientX = e.clientX ?? (e.touches && e.touches.length > 0 ? e.touches[0].clientX : undefined);
@@ -545,13 +566,12 @@ export default function ThemeEditor() {
 
     if (el && clientX !== undefined) {
       setDragInfo({
-        isDragging: true, // 이벤트 수신을 위해 true로 둡니다
+        isDragging: true,
         id: id,
         startX: clientX,
         startY: clientY,
         initialElementX: el.x || 0,
-        initialElementY: el.y || 0,
-        isClick: true // 일단 클릭으로 시작한다고 가정
+        initialElementY: el.y || 0
       });
     }
   };
@@ -724,7 +744,7 @@ export default function ThemeEditor() {
     
     boxStyle.border = (!isPlayMode && isSelected) ? '2px dashed #00FFFF' : '2px solid transparent';
     boxStyle.boxSizing = 'border-box';
-    boxStyle.cursor = isPlayMode ? 'pointer' : (dragInfo.isDragging && dragInfo.id === el.id ? 'grabbing' : 'grab');
+    boxStyle.cursor = isPlayMode ? 'default' : (dragInfo.isDragging && dragInfo.id === el.id ? 'grabbing' : 'grab');
 
     if (el.type === 'box') {
       return (
@@ -1292,9 +1312,17 @@ export default function ThemeEditor() {
                       <select className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.action || 'OPEN_PLAYER'} onChange={(e) => handleElementChange(selectedElement.id, 'action', e.target.value)}>
                         <option value="OPEN_PLAYER">{t('actNowPlaying')}</option>
                         <option value="OPEN_BROWSER">{t('actLibrary')}</option>
+                        <option value="OPEN_ROOT_FOLDER">{t('actRoot')}</option>
                         <option value="OPEN_BLUETOOTH">{t('actBluetooth')}</option>
-                        <option value="OPEN_SETTINGS">{t('actSettings')}</option>
+                        <option value="OPEN_WIFI">{t('actWifi')}</option>
                         <option value="OPEN_WEBSERVER">{t('actWeb')}</option>
+                        <option value="OPEN_SETTINGS">{t('actSettings')}</option>
+                        <option value="OPEN_WIDGET_SETTINGS">{t('actWidget')}</option>
+                        <option value="OPEN_BACKGROUND_SETTINGS">{t('actBg')}</option>
+                        <option value="OPEN_THEME_SETTINGS">{t('actTheme')}</option>
+                        <option value="OPEN_TIME_SETTINGS">{t('actTime')}</option>
+                        <option value="OPEN_BRIGHTNESS">{t('actBrightness')}</option>
+                        <option value="OPEN_STORAGE_INFO">{t('actStorage')}</option>
                       </select>
                     </div>
                     <div className="col-span-2">
