@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import JSZip from 'jszip'; // 추가된 부분
+import JSZip from 'jszip';
 import { Download, Plus, Trash2, Settings, List, Smartphone, Type, Image as ImageIcon, ChevronLeft, MousePointer2, Play, Upload } from 'lucide-react';
 
 // 다국어 번역 사전
@@ -62,7 +63,7 @@ const translations = {
     btnSettings: "Button Settings",
     btnText: "Button Text",
     actionLabel: "Action",
-    focusIndexLabel: "Focus Order (Index)", // 🚀 영문 추가
+    focusIndexLabel: "Focus Order (Index)",
     iconLabel: "Icon (Image Preview)",
     iconPlaceholder: "icon_name.png",
     imageNotice: "※ PC images will be previewed and included in the ZIP.",
@@ -145,7 +146,7 @@ const translations = {
     btnSettings: "버튼 설정",
     btnText: "버튼 글자 (Text)",
     actionLabel: "실행 동작 (Action)",
-    focusIndexLabel: "포커스 순서 (고유 번호)", // 🚀 한글 추가
+    focusIndexLabel: "포커스 순서 (고유 번호)",
     iconLabel: "아이콘 (Icon)",
     iconPlaceholder: "icon_name.png",
     imageNotice: "※ PC에서 이미지를 선택하면 표시되며, 압축 파일(.zip)에 포함됩니다.",
@@ -361,7 +362,7 @@ export default function ThemeEditor() {
   const [language, setLanguage] = useState('en'); 
   const t = (key) => translations[language]?.[key] || translations['en'][key] || key; 
 
-  // 🚀 초기 데이터에 버튼별 focus_index 명시 추가
+  // 🚀 모든 기본 데이터에 text_align 기본값을 추가하여 오류 방어
   const [themeData, setThemeData] = useState({
     name: "Classic Split (480x360)",
     font: "",
@@ -379,7 +380,7 @@ export default function ThemeEditor() {
         x: 20, y: 25, width: 220, height: 0,
         gravity: "top|right",
         text_size: 22,
-        bg_color: "", radius: -1, padding: 0
+        bg_color: "", radius: -1, padding: 0, text_align: "left"
       },
       {
         id: "my_album", type: "widget_album",
@@ -395,7 +396,7 @@ export default function ThemeEditor() {
         text_normal: "Now Playing", icon_normal: "icon_now_playing.png",
         gravity: "top|left", text_size: 16,
         bg_color: "", radius: -1, padding: 0, action: "OPEN_PLAYER",
-        focus_index: 0
+        focus_index: 0, text_align: "left"
       },
       {
         id: "btn_music", type: "button",
@@ -403,7 +404,7 @@ export default function ThemeEditor() {
         text_normal: "Library", icon_normal: "icon_music.png",
         gravity: "top|left", text_size: 16,
         bg_color: "", radius: -1, padding: 0, action: "OPEN_BROWSER",
-        focus_index: 1
+        focus_index: 1, text_align: "left"
       },
       {
         id: "btn_bt", type: "button",
@@ -411,7 +412,7 @@ export default function ThemeEditor() {
         text_normal: "Bluetooth", icon_normal: "icon_bluetooth.png",
         gravity: "top|left", text_size: 16,
         bg_color: "", radius: -1, padding: 0, action: "OPEN_BLUETOOTH",
-        focus_index: 2
+        focus_index: 2, text_align: "left"
       },
       {
         id: "btn_set", type: "button",
@@ -419,7 +420,7 @@ export default function ThemeEditor() {
         text_normal: "Settings", icon_normal: "icon_setting.png",
         gravity: "top|left", text_size: 16,
         bg_color: "", radius: -1, padding: 0, action: "OPEN_SETTINGS",
-        focus_index: 3
+        focus_index: 3, text_align: "left"
       }
     ]
   });
@@ -594,7 +595,8 @@ export default function ThemeEditor() {
       gravity: "top|left",
       text_normal: "New Item", text_size: 16,
       bg_color: "", radius: -1, padding: 0, action: "OPEN_PLAYER",
-      focus_index: themeData.main_menu.filter(el => el.type === 'button').length // 새로 추가 시 제일 끝 번호 자동 부여!
+      focus_index: themeData.main_menu.filter(el => el.type === 'button').length,
+      text_align: "left" // 🚀 추가 시 기본값 보장
     };
     
     setThemeData({
@@ -619,7 +621,6 @@ export default function ThemeEditor() {
       const JSZip = await loadJSZip();
       const zip = new JSZip();
 
-      // 🚀 [수정] 오토매틱 계산 로직 삭제! 회원이 직접 입력한 themeData를 그대로 굽습니다!
       zip.file("config.json", JSON.stringify(themeData, null, 2));
 
       Object.values(uploadedFiles).forEach(file => {
@@ -764,7 +765,7 @@ export default function ThemeEditor() {
           key={el.id} 
           style={{
             ...boxStyle, 
-            overflow: 'hidden', // 🚀 둥근 모서리 밖으로 이미지가 삐져나가지 않게 자름
+            overflow: 'hidden',
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }} 
           onMouseDown={(e) => handlePointerDown(e, el.id)}
@@ -788,10 +789,11 @@ export default function ThemeEditor() {
       
       const isIconOnly = !el.text_normal || el.text_normal.trim() === '';
       const previewImg = previewImages[el.id];
-// 🚀 [추가] 버튼 내부 텍스트 정렬 로직
+
+      // 🚀 안전한 방어막: undefined 대신 'left' 기본값 보장
       let jc = 'flex-start';
       let ai = 'center';
-      let ta = el.text_align ? el.text_align.toLowerCase() : 'left';
+      let ta = (el.text_align || 'left').toLowerCase();
       
       if (isIconOnly) {
          jc = 'center';
@@ -801,6 +803,7 @@ export default function ThemeEditor() {
          else if (ta === 'top') { jc = 'center'; ai = 'flex-start'; }
          else if (ta === 'bottom') { jc = 'center'; ai = 'flex-end'; }
       }
+
       return (
         <div 
           key={el.id} style={boxStyle} 
@@ -810,14 +813,19 @@ export default function ThemeEditor() {
           onMouseLeave={() => setHoveredId(null)}
           className="flex items-center text-white overflow-hidden transition-all duration-200"
         >
-          <div style={{ backgroundColor: currentBg, borderRadius: `${radius}px`, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: isIconOnly ? 'center' : 'flex-start', padding: isIconOnly ? '0' : '0 15px' }}>
+          <div style={{ 
+            backgroundColor: currentBg, borderRadius: `${radius}px`, 
+            width: '100%', height: '100%', display: 'flex', 
+            alignItems: ai, justifyContent: jc, 
+            padding: isIconOnly ? '0' : (ta === 'top' || ta === 'bottom' ? '15px 0' : '0 15px')
+          }}>
             {previewImg ? (
-               <img src={previewImg} alt="icon" draggable="false" style={{width: isIconOnly ? '50%' : '24px', height: isIconOnly ? '50%' : '24px', marginRight: isIconOnly ? '0' : '10px', objectFit: 'contain'}} />
+               <img src={previewImg} alt="icon" draggable="false" style={{width: isIconOnly ? '50%' : '24px', height: isIconOnly ? '50%' : '24px', marginRight: isIconOnly || ta === 'top' || ta === 'bottom' ? '0' : '10px', marginBottom: (ta === 'top' || ta === 'bottom') && !isIconOnly ? '5px' : '0', objectFit: 'contain'}} />
             ) : el.icon_normal ? (
-               <ImageIcon size={isIconOnly ? 32 : 20} className={isIconOnly ? '' : 'mr-2'} color={currentTextColor} />
+               <ImageIcon size={isIconOnly ? 32 : 20} className={isIconOnly ? '' : (ta === 'top' || ta === 'bottom' ? 'mb-1' : 'mr-2')} color={currentTextColor} />
             ) : null}
             {!isIconOnly && (
-               <span style={{ fontSize: el.text_size > 0 ? `${el.text_size}px` : '16px', color: currentTextColor, fontWeight: '500' }}>
+               <span style={{ fontSize: el.text_size > 0 ? `${el.text_size}px` : '16px', color: currentTextColor, fontWeight: '500', textAlign: ta }}>
                  {el.text_normal}
                </span>
             )}
@@ -1136,17 +1144,6 @@ export default function ThemeEditor() {
                   <label className="block text-xs text-neutral-400 mb-1">{t('defaultRadius')}</label>
                   <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm font-mono" value={themeData.button_radius} onChange={(e) => handleGlobalChange('button_radius', parseInt(e.target.value))} />
                 </div>
-                {/* 🚀 [여기 추가됨!] 버튼 내부 텍스트 정렬 드롭다운 */}
-                    <div className="col-span-2 mt-2">
-                      <label className="block text-xs text-neutral-400 mb-1">{t('textAlign')}</label>
-                      <select className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.text_align || 'left'} onChange={(e) => handleElementChange(selectedElement.id, 'text_align', e.target.value)}>
-                        <option value="left">Left (왼쪽)</option>
-                        <option value="center">Center (가운데)</option>
-                        <option value="right">Right (오른쪽)</option>
-                        <option value="top">Top (위쪽)</option>
-                        <option value="bottom">Bottom (아래쪽)</option>
-                      </select>
-                    </div>
               </div>
             </div>
           )}
@@ -1294,7 +1291,7 @@ export default function ThemeEditor() {
                   <label className="block text-xs text-neutral-400 mb-1">{t('radiusLabel')}</label>
                   <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm placeholder-neutral-600" placeholder={t('radiusPlaceholder')} value={selectedElement.radius !== undefined ? selectedElement.radius : -1} onChange={(e) => handleElementChange(selectedElement.id, 'radius', parseInt(e.target.value))} />
                 </div>
-                {/* 🚀 [추가] 박스 전용 이미지 업로드 기능 */}
+                {/* 🚀 박스 전용 이미지 업로드 기능 */}
                 {selectedElement.type === 'box' && (
                   <>
                     <div className="col-span-2 border-t border-neutral-700 pt-4 mt-2">
@@ -1368,10 +1365,21 @@ export default function ThemeEditor() {
                       <span className="text-xs font-bold text-neutral-300 uppercase">{t('btnSettings')}</span>
                     </div>
                     
-                    {/* 🚀 포커스 고유 번호 수동 입력 필드 추가 */}
                     <div className="col-span-2">
                       <label className="block text-xs text-neutral-400 mb-1">{t('focusIndexLabel')}</label>
                       <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm font-mono text-cyan-400" value={selectedElement.focus_index !== undefined ? selectedElement.focus_index : 0} onChange={(e) => handleElementChange(selectedElement.id, 'focus_index', parseInt(e.target.value))} />
+                    </div>
+
+                    {/* 🚀 버튼 내부 텍스트 정렬 드롭다운 */}
+                    <div className="col-span-2 mt-2">
+                      <label className="block text-xs text-neutral-400 mb-1">{t('textAlign')}</label>
+                      <select className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.text_align || 'left'} onChange={(e) => handleElementChange(selectedElement.id, 'text_align', e.target.value)}>
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                      </select>
                     </div>
 
                     <div className="col-span-2 mt-2">
