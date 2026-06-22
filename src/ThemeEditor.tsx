@@ -852,19 +852,31 @@ export default function ThemeEditor() {
         >
           <div style={{ 
             backgroundColor: currentBg, borderRadius: `${radius}px`, 
-            width: '100%', height: '100%', display: 'flex', 
-            alignItems: ai, justifyContent: jc, 
+            width: '100%', height: '100%', display: 'flex', flexDirection: 'row',
+            alignItems: ai, 
             padding: isIconOnly ? '0' : (ta === 'top' || ta === 'bottom' ? '15px 0' : '0 15px')
           }}>
-            {previewImg ? (
-               <img src={previewImg} alt="icon" draggable="false" style={{width: isIconOnly ? '50%' : '24px', height: isIconOnly ? '50%' : '24px', marginRight: isIconOnly || ta === 'top' || ta === 'bottom' ? '0' : '10px', marginBottom: (ta === 'top' || ta === 'bottom') && !isIconOnly ? '5px' : '0', objectFit: 'contain'}} />
-            ) : el.icon_normal ? (
-               <ImageIcon size={isIconOnly ? 32 : 20} className={isIconOnly ? '' : (ta === 'top' || ta === 'bottom' ? 'mb-1' : 'mr-2')} color={currentTextColor} />
-            ) : null}
-            {!isIconOnly && (
-               <span style={{ fontSize: el.text_size > 0 ? `${el.text_size}px` : '16px', color: currentTextColor, fontWeight: '500', textAlign: ta }}>
-                 {el.text_normal}
-               </span>
+            {/* 🚀 1. 좌측/중앙을 담당하는 메인 텍스트 영역 (flex: 1 로 남은 공간을 다 차지함) */}
+            <div style={{ display: 'flex', flex: 1, alignItems: ai, justifyContent: jc }}>
+              {previewImg ? (
+                 <img src={previewImg} alt="icon" draggable="false" style={{width: isIconOnly ? '50%' : '24px', height: isIconOnly ? '50%' : '24px', marginRight: isIconOnly || ta === 'top' || ta === 'bottom' ? '0' : '10px', marginBottom: (ta === 'top' || ta === 'bottom') && !isIconOnly ? '5px' : '0', objectFit: 'contain'}} />
+              ) : el.icon_normal ? (
+                 <ImageIcon size={isIconOnly ? 32 : 20} className={isIconOnly ? '' : (ta === 'top' || ta === 'bottom' ? 'mb-1' : 'mr-2')} color={currentTextColor} />
+              ) : null}
+              {!isIconOnly && (
+                 <span style={{ fontSize: el.text_size > 0 ? `${el.text_size}px` : '16px', color: currentTextColor, fontWeight: '500', textAlign: ta }}>
+                   {el.text_normal}
+                 </span>
+              )}
+            </div>
+
+            {/* 🚀 2. 우측 끝에 딱 붙는 서브 텍스트 영역 (화살표, 포인트 텍스트) */}
+            {!isIconOnly && el.text_right && (
+               <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                 <span style={{ fontSize: el.text_size > 0 ? `${el.text_size}px` : '16px', color: currentTextColor, fontWeight: '500' }}>
+                   {el.text_right}
+                 </span>
+               </div>
             )}
           </div>
         </div>
@@ -1406,7 +1418,10 @@ export default function ThemeEditor() {
                       <label className="block text-xs text-neutral-400 mb-1">{t('focusIndexLabel')}</label>
                       <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm font-mono text-cyan-400" value={selectedElement.focus_index !== undefined ? selectedElement.focus_index : 0} onChange={(e) => handleElementChange(selectedElement.id, 'focus_index', parseInt(e.target.value))} />
                     </div>
-
+                    <div className="col-span-2 mt-2">
+                      <label className="block text-xs text-neutral-400 mb-1">Right Text (Arrow/Point)</label>
+                      <input type="text" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm placeholder-neutral-600" placeholder="e.g. 〉 or OFF" value={selectedElement.text_right || ''} onChange={(e) => handleElementChange(selectedElement.id, 'text_right', e.target.value)} />
+                    </div>
                     {/* 🚀 버튼 내부 텍스트 정렬 드롭다운 */}
                     <div className="col-span-2 mt-2">
                       <label className="block text-xs text-neutral-400 mb-1">{t('textAlign')}</label>
