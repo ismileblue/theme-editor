@@ -1032,8 +1032,14 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
 // [여기에 코드 추가!]
     if (el.type === 'widget_focus_image') {
       // 🚀 에디터 상에서 현재 마우스가 올라간(Hover) 버튼을 찾거나, 선택된 버튼을 찾습니다.
-      const activeEl = isPlayMode && hoveredId ? themeData.main_menu.find(e => e.id === hoveredId) :
+      let activeEl = isPlayMode && hoveredId ? themeData.main_menu.find(e => e.id === hoveredId) :
                        (!isPlayMode && selectedId ? themeData.main_menu.find(e => e.id === selectedId) : null);
+
+      // 🚀 [여기 추가!!] 마우스가 닿은 곳이 없다면, 포커스 인덱스가 가장 낮은(0번) 버튼을 무조건 1순위로 잡습니다!
+      if (!activeEl) {
+        const buttons = themeData.main_menu.filter(e => e.type === 'button').sort((a, b) => (a.focus_index || 0) - (b.focus_index || 0));
+        if (buttons.length > 0) activeEl = buttons[0];
+      }
 
       let displayImg = null;
       if (activeEl && activeEl.preview_image) {
