@@ -39,6 +39,7 @@ const translations = {
     typeAlbum: "Widget: Album Art",
     typeBattery: "Widget: Battery Bar",
     typeCircularBattery: "Widget: Circular Battery",
+    typeFocusImage: "Widget: Dynamic Focus Image", previewImageLabel: "Focus Preview Image",
     typeBox: "Design Box (Background Split)",
     layoutCoords: "Layout & Coordinates",
     gravityLabel: "Gravity (Anchor)",
@@ -122,6 +123,7 @@ const translations = {
     typeAlbum: "위젯: 앨범 아트 (Album)",
     typeBattery: "위젯: 배터리 바",
     typeCircularBattery: "위젯: 원형 배터리",
+    typeFocusImage: "위젯: 다이내믹 포커스 이미지", previewImageLabel: "포커스 전용 이미지",
     typeBox: "디자인 박스 (배경 분할용)",
     layoutCoords: "레이아웃 및 좌표",
     gravityLabel: "Gravity (기준점)",
@@ -205,6 +207,7 @@ const translations = {
     typeAlbum: "ウィジェット: アルバム (Album)",
     typeBattery: "ウィジェット: バッテリーバー",
     typeCircularBattery: "ウィジェット: 円形バッテリー",
+    typeFocusImage: "ウィジェット: フォーカス画像", previewImageLabel: "フォーカス専用画像",
     typeBox: "デザインボックス (背景分割用)",
     layoutCoords: "レイアウトと座標",
     gravityLabel: "Gravity (基準点)",
@@ -288,6 +291,7 @@ const translations = {
     typeAlbum: "小部件：专辑 (Album)",
     typeBattery: "小部件：电池条",
     typeCircularBattery: "小部件：圆形电池",
+    typeFocusImage: "小部件：动态焦点图片", previewImageLabel: "焦点预览图片",
     typeBox: "装饰盒子 (背景分割用)",
     layoutCoords: "布局与坐标",
     gravityLabel: "Gravity (锚点)",
@@ -550,7 +554,7 @@ export default function ThemeEditor() {
           const resizedFile = new File([blob], file.name, { type: file.type || 'image/jpeg' });
           const url = URL.createObjectURL(resizedFile);
 
-          setPreviewImages(prev => ({ ...prev, [id]: url }));
+          setPreviewImages(prev => ({ ...prev, [id]: url, [`${id}_${targetField}`]: url }));
           setUploadedFiles(prev => ({ ...prev, [file.name]: resizedFile }));
 
           if (targetField) {
@@ -1025,7 +1029,34 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
         </div>
       );
     }
+// [여기에 코드 추가!]
+    if (el.type === 'widget_focus_image') {
+      // 🚀 에디터 상에서 현재 마우스가 올라간(Hover) 버튼을 찾거나, 선택된 버튼을 찾습니다.
+      const activeEl = isPlayMode && hoveredId ? themeData.main_menu.find(e => e.id === hoveredId) :
+                       (!isPlayMode && selectedId ? themeData.main_menu.find(e => e.id === selectedId) : null);
 
+      let displayImg = null;
+      if (activeEl && activeEl.preview_image) {
+         displayImg = previewImages[`${activeEl.id}_preview_image`] || null;
+      }
+
+      return (
+        <div 
+          key={el.id} 
+          style={{...boxStyle, overflow:'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center'}}
+          onMouseDown={(e) => handlePointerDown(e, el.id)}
+          onTouchStart={(e) => handlePointerDown(e, el.id)}
+        >
+           {displayImg ? (
+             <img src={displayImg} alt="focus_preview" draggable="false" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+           ) : activeEl && activeEl.preview_image ? (
+             <span style={{color: '#fff', fontSize: '10px'}}>{activeEl.preview_image}</span>
+           ) : (
+             <ImageIcon color="rgba(255,255,255,0.3)" size={32} />
+           )}
+        </div>
+      );
+    }
     return null;
   };
 
@@ -1298,6 +1329,7 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
                     <option value="widget_album">{t('typeAlbum')}</option>
                     <option value="widget_battery">{t('typeBattery')}</option>
                     <option value="widget_circular_battery">{t('typeCircularBattery')}</option>
+                    <option value="widget_focus_image">{t('typeFocusImage')}</option>
                   </select>
                 </div>
                 
@@ -1473,6 +1505,18 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
                         <option value="OPEN_STORAGE_INFO">{t('actStorage')}</option>
                       </select>
                     </div>
+                    {/* 🚀 [추가] 버튼에 포커스 전용 이미지를 등록하는 메뉴 */}
+                    <div className="col-span-2 mt-2">
+                      <label className="block text-xs text-neutral-400 mb-1">{t('previewImageLabel')}</label>
+                      <div className="flex gap-2">
+                        <input type="text" className="flex-1 bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm placeholder-neutral-600" placeholder="image.png" value={selectedElement.preview_image || ''} onChange={(e) => handleElementChange(selectedElement.id, 'preview_image', e.target.value)} />
+                        <label className="bg-neutral-700 hover:bg-neutral-600 text-white rounded px-3 py-2 cursor-pointer flex items-center justify-center transition-colors">
+                          <ImageIcon size={16} />
+                          <input type="file" accept="image/png, image/jpeg, image/webp" className="hidden" onChange={(e) => handleImageUpload(selectedElement.id, e.target.files[0], 'preview_image')} />
+                        </label>
+                      </div>
+                    </div>
+                    
                     <div className="col-span-2 mt-2">
                       <label className="block text-xs text-neutral-400 mb-1">{t('iconLabel')}</label>
                       <div className="flex gap-2">
