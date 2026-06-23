@@ -856,14 +856,16 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
             backgroundColor: currentBg, borderRadius: `${radius}px`, 
             width: '100%', height: '100%', display: 'flex', flexDirection: 'row',
             alignItems: ai, 
-            padding: isIconOnly ? '0' : (ta === 'top' || ta === 'bottom' ? '15px 0' : '0 15px')
+            // 🚀 [수정] 아이콘 전용 버튼일 때 'Inner Padding' 값을 100% 적용합니다!
+            padding: isIconOnly ? `${el.padding || 0}px` : (ta === 'top' || ta === 'bottom' ? '15px 0' : '0 15px')
           }}>
-            {/* 🚀 1. 좌측/중앙을 담당하는 메인 텍스트 영역 (flex: 1 로 남은 공간을 다 차지함) */}
-            <div style={{ display: 'flex', flex: 1, alignItems: ai, justifyContent: jc }}>
+            {/* 🚀 1. 좌측/중앙을 담당하는 메인 텍스트 영역 */}
+            <div style={{ display: 'flex', flex: 1, alignItems: ai, justifyContent: jc, height: isIconOnly ? '100%' : 'auto' }}>
               {previewImg ? (
-                 <img src={previewImg} alt="icon" draggable="false" style={{width: isIconOnly ? '50%' : '24px', height: isIconOnly ? '50%' : '24px', marginRight: isIconOnly || ta === 'top' || ta === 'bottom' ? '0' : '10px', marginBottom: (ta === 'top' || ta === 'bottom') && !isIconOnly ? '5px' : '0', objectFit: 'contain'}} />
+                 // 🚀 [수정] 50% 강제 고정이 아니라 100% 꽉 채우도록 변경 (패딩으로 크기를 조절하게 됩니다)
+                 <img src={previewImg} alt="icon" draggable="false" style={{width: isIconOnly ? '100%' : '24px', height: isIconOnly ? '100%' : '24px', marginRight: isIconOnly || ta === 'top' || ta === 'bottom' ? '0' : '10px', marginBottom: (ta === 'top' || ta === 'bottom') && !isIconOnly ? '5px' : '0', objectFit: 'contain'}} />
               ) : el.icon_normal ? (
-                 <ImageIcon size={isIconOnly ? 32 : 20} className={isIconOnly ? '' : (ta === 'top' || ta === 'bottom' ? 'mb-1' : 'mr-2')} color={currentTextColor} />
+                 <ImageIcon size={isIconOnly ? Math.max(10, Math.min(el.width, el.height) - (el.padding || 0) * 2) : 20} className={isIconOnly ? '' : (ta === 'top' || ta === 'bottom' ? 'mb-1' : 'mr-2')} color={currentTextColor} />
               ) : null}
               {!isIconOnly && (
                  <span style={{ fontSize: el.text_size > 0 ? `${el.text_size}px` : '16px', color: currentTextColor, fontWeight: '500', textAlign: ta }}>
@@ -1364,8 +1366,12 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
                 {selectedElement.type !== 'box' && (
                   <>
                     <div>
-                      <label className="block text-xs text-neutral-400 mb-1">{t('paddingLabel')}</label>
-                      <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.padding || 0} onChange={(e) => handleElementChange(selectedElement.id, 'padding', parseInt(e.target.value))} />
+                      <label className="block text-xs text-neutral-400 mb-1">
+                        {t('paddingLabel')}
+                        {/* 🚀 [추가] 버튼일 경우 패딩이 아이콘 마진 역할을 한다는 안내 문구 추가 */}
+                        {selectedElement.type === 'button' && <span className="text-cyan-400 ml-1 font-bold">(Icon Margin)</span>}
+                      </label>
+                      <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.padding || 0} onChange={(e) => handleElementChange(selectedElement.id, 'padding', parseInt(e.target.value) || 0)} />
                     </div>
                     <div>
                       <label className="block text-xs text-neutral-400 mb-1">{t('titleTextSize')}</label>
