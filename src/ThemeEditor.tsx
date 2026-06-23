@@ -826,7 +826,9 @@ export default function ThemeEditor() {
       
       const isIconOnly = !el.text_normal || el.text_normal.trim() === '';
       const previewImg = previewImages[el.id];
-
+const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_color) : androidHexToWeb(themeData.textPrimary);
+      const rightColorFocused = el.text_right_focused_color ? androidHexToWeb(el.text_right_focused_color) : androidHexToWeb(themeData.btnFocusedText);
+      const currentRightColor = isHovered ? rightColorFocused : rightColorNormal;
       // 🚀 안전한 방어막: undefined 대신 'left' 기본값 보장
       let jc = 'flex-start';
       let ai = 'center';
@@ -873,7 +875,7 @@ export default function ThemeEditor() {
             {/* 🚀 2. 우측 끝에 딱 붙는 서브 텍스트 영역 (화살표, 포인트 텍스트) */}
             {!isIconOnly && el.text_right && (
                <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                 <span style={{ fontSize: el.text_size > 0 ? `${el.text_size}px` : '16px', color: currentTextColor, fontWeight: '500' }}>
+                 <span style={{ fontSize: el.text_size > 0 ? `${el.text_size}px` : '16px', color: currentRightColor, fontWeight: '500' }}>
                    {el.text_right}
                  </span>
                </div>
@@ -1421,6 +1423,15 @@ export default function ThemeEditor() {
                     <div className="col-span-2 mt-2">
                       <label className="block text-xs text-neutral-400 mb-1">Right Text (Arrow/Point)</label>
                       <input type="text" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm placeholder-neutral-600" placeholder="e.g. 〉 or OFF" value={selectedElement.text_right || ''} onChange={(e) => handleElementChange(selectedElement.id, 'text_right', e.target.value)} />
+                    </div>
+                    {/* 🚀 [추가됨] 우측 텍스트 독립 색상 제어기 */}
+                    <div className="col-span-2 mt-2 bg-neutral-800 p-2 rounded border border-neutral-700">
+                      <label className="block text-[10px] font-bold text-neutral-400 uppercase mb-2">Right Text Colors (Optional)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {renderColorInput("Normal", selectedElement.text_right_color, (val) => handleElementChange(selectedElement.id, 'text_right_color', val))}
+                        {renderColorInput("Focused", selectedElement.text_right_focused_color, (val) => handleElementChange(selectedElement.id, 'text_right_focused_color', val))}
+                      </div>
+                      <p className="text-[9px] text-neutral-500 mt-1">※ Leave blank to inherit main text color.</p>
                     </div>
                     {/* 🚀 버튼 내부 텍스트 정렬 드롭다운 */}
                     <div className="col-span-2 mt-2">
