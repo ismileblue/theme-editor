@@ -438,7 +438,7 @@ export default function ThemeEditor() {
   const [fontUrl, setFontUrl] = useState(null); 
   const [fontFamilyName, setFontFamilyName] = useState(''); 
   const [isZipping, setIsZipping] = useState(false);
-
+const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/축소 배율 상태 (기본 1.0배)
   const [dragInfo, setDragInfo] = useState({ isDragging: false, id: null, startX: 0, startY: 0, initialElementX: 0, initialElementY: 0 });
 
   useEffect(() => {
@@ -452,8 +452,9 @@ export default function ThemeEditor() {
         const el = prev.main_menu.find(elem => elem.id === dragInfo.id);
         if (!el) return prev;
 
-        let deltaX = clientX - dragInfo.startX;
-        let deltaY = clientY - dragInfo.startY;
+        // 🚀 [줌 확대 대응] 화면이 확대/축소되었을 때, 마우스 이동 거리도 줌 배율로 나눠주어야 마우스 포인터와 아이콘이 1:1로 완벽하게 따라다닙니다!
+        let deltaX = (clientX - dragInfo.startX) / zoomLevel;
+        let deltaY = (clientY - dragInfo.startY) / zoomLevel;
 
         const g = el.gravity ? el.gravity.toLowerCase() : 'top|left';
 
@@ -498,7 +499,7 @@ export default function ThemeEditor() {
       window.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
     };
-  }, [dragInfo]);
+  }, [dragInfo, zoomLevel]); // 🚀 [필수] 줌 배율(zoomLevel)이 변할 때마다 드래그 엔진도 새 비율로 리셋되도록 꼬리표를 달아줍니다!
 
   const handleImportJSON = async (e) => {
     const file = e.target.files[0];
@@ -1174,12 +1175,27 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
 
         <h2 className="mb-4 text-xl font-bold text-neutral-400 flex items-center gap-2"><Smartphone size={24} /> {t('preview')} (480 x 360)</h2>
         
+        {/* 🚀 [추가] 줌(Zoom) 컨트롤 패널 */}
+        <div className="flex items-center gap-3 mb-6 bg-neutral-800 px-4 py-2 rounded-full border border-neutral-700 shadow-inner z-10">
+          <span className="text-[11px] font-bold text-neutral-400 tracking-wider">ZOOM</span>
+          <input 
+            type="range" min="0.5" max="2.5" step="0.1" 
+            value={zoomLevel} 
+            onChange={(e) => setZoomLevel(parseFloat(e.target.value))}
+            className="w-32 h-1 bg-neutral-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+          />
+          <span className="text-[11px] font-mono text-cyan-400 w-10 text-right">{Math.round(zoomLevel * 100)}%</span>
+          <button onClick={() => setZoomLevel(1.0)} className="ml-1 text-[10px] bg-neutral-700 hover:bg-neutral-600 text-white px-2 py-1 rounded transition-colors font-bold">RESET</button>
+        </div>
+
         <div 
-          className="relative shadow-2xl ring-4 ring-neutral-800 overflow-hidden"
+          className="relative shadow-2xl ring-4 ring-neutral-800 overflow-hidden transition-transform duration-100"
           style={{
             width: '480px', 
             height: '360px', 
-            userSelect: 'none', 
+            transform: `scale(${zoomLevel})`, // 🚀 [핵심 기술] 지정한 배율만큼 화면을 물리적으로 뻥튀기!
+            transformOrigin: 'top center', // 🚀 윗부분을 기준으로 확대하여 화면 구조가 틀어지지 않게 고정
+            userSelect: 'none',
             WebkitUserSelect: 'none',
             backgroundColor: androidHexToWeb(themeData.bgOverlay),
             backgroundImage: `linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%)`,
