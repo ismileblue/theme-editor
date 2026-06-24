@@ -847,14 +847,18 @@ export default function ThemeEditor() {
     const bgColorWeb = el.bg_color ? androidHexToWeb(el.bg_color) : 'transparent';
     const radius = el.radius !== undefined && el.radius !== -1 ? el.radius : themeData.button_radius;
     
-    if (el.type === 'widget_analog_clock') {
+ if (el.type === 'widget_analog_clock') {
         boxStyle.backgroundColor = 'transparent';
     } else {
         boxStyle.backgroundColor = bgColorWeb;
     }
     
     boxStyle.borderRadius = `${radius}px`;
-    boxStyle.padding = el.padding ? `${el.padding}px` : '0px';
+    
+    // 🚀 [에디터 버그 해결] 버튼은 내부 안쪽 상자에서 패딩을 주므로, 겉 껍데기에 패딩을 또 주면 '이중 패딩(왜곡)'이 발생합니다!
+    if (el.type !== 'button') {
+        boxStyle.padding = el.padding ? `${el.padding}px` : '0px';
+    }
     
     boxStyle.border = (!isPlayMode && isSelected) ? '2px dashed #00FFFF' : '2px solid transparent';
     boxStyle.boxSizing = 'border-box';
