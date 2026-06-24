@@ -891,13 +891,20 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
 
     if (el.type === 'button') {
       const isHovered = isPlayMode && hoveredId === el.id;
-      // ... (생략)
+      
+      // 🚀 실수로 지워졌던 배경색(currentBg)과 글자색(currentTextColor) 변수 복구!
+      const currentBg = isHovered ? androidHexToWeb(themeData.btnFocused) : (bgColorWeb === 'transparent' ? androidHexToWeb(themeData.btnNormal) : bgColorWeb);
+      const currentTextColor = isHovered ? androidHexToWeb(themeData.btnFocusedText) : androidHexToWeb(themeData.textPrimary);
+      
       const isIconOnly = !el.text_normal || el.text_normal.trim() === '';
+      
       // 🚀 [버그 해결] 버튼 역시 아이콘 이름 칸이 비어있으면 이미지를 띄우지 않습니다!
       const previewImg = (el.icon_normal && el.icon_normal.trim() !== '') ? previewImages[el.id] : null;
+      
       const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_color) : androidHexToWeb(themeData.textPrimary);
       const rightColorFocused = el.text_right_focused_color ? androidHexToWeb(el.text_right_focused_color) : androidHexToWeb(themeData.btnFocusedText);
       const currentRightColor = isHovered ? rightColorFocused : rightColorNormal;
+
       // 🚀 안전한 방어막: undefined 대신 'left' 기본값 보장
       let jc = 'flex-start';
       const scaleVal = el.focus_scale !== undefined ? el.focus_scale : 1.0;
