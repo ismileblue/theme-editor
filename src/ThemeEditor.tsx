@@ -866,7 +866,7 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
     boxStyle.cursor = isPlayMode ? 'default' : (dragInfo.isDragging && dragInfo.id === el.id ? 'grabbing' : 'grab');
 
     if (el.type === 'box') {
-      const previewImg = previewImages[el.id];
+      const previewImg = (el.icon_normal && el.icon_normal.trim() !== '') ? previewImages[el.id] : null;
       return (
         <div 
           key={el.id} 
@@ -891,12 +891,11 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
 
     if (el.type === 'button') {
       const isHovered = isPlayMode && hoveredId === el.id;
-      const currentBg = isHovered ? androidHexToWeb(themeData.btnFocused) : (bgColorWeb === 'transparent' ? androidHexToWeb(themeData.btnNormal) : bgColorWeb);
-      const currentTextColor = isHovered ? androidHexToWeb(themeData.btnFocusedText) : androidHexToWeb(themeData.textPrimary);
-      
+      // ... (생략)
       const isIconOnly = !el.text_normal || el.text_normal.trim() === '';
-      const previewImg = previewImages[el.id];
-const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_color) : androidHexToWeb(themeData.textPrimary);
+      // 🚀 [버그 해결] 버튼 역시 아이콘 이름 칸이 비어있으면 이미지를 띄우지 않습니다!
+      const previewImg = (el.icon_normal && el.icon_normal.trim() !== '') ? previewImages[el.id] : null;
+      const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_color) : androidHexToWeb(themeData.textPrimary);
       const rightColorFocused = el.text_right_focused_color ? androidHexToWeb(el.text_right_focused_color) : androidHexToWeb(themeData.btnFocusedText);
       const currentRightColor = isHovered ? rightColorFocused : rightColorNormal;
       // 🚀 안전한 방어막: undefined 대신 'left' 기본값 보장
