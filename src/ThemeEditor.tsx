@@ -960,7 +960,7 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
             {/* 🚀 2. 우측 끝에 딱 붙는 서브 텍스트 영역 (화살표, 포인트 텍스트) */}
             {!isIconOnly && el.text_right && (
                <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                 <span style={{ fontSize: el.text_size > 0 ? `${el.text_size}px` : '16px', color: currentRightColor, fontWeight: '500' }}>
+                 <span style={{ fontSize: el.text_secondary_size > 0 ? `${el.text_secondary_size}px` : (el.text_size > 0 ? `${el.text_size}px` : '16px'), color: currentRightColor, fontWeight: '500' }}>
                    {el.text_right}
                  </span>
                </div>
@@ -1505,10 +1505,13 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
                       </label>
                       <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.padding || 0} onChange={(e) => handleElementChange(selectedElement.id, 'padding', parseInt(e.target.value) || 0)} />
                     </div>
-                    <div>
-                      <label className="block text-xs text-neutral-400 mb-1">{t('titleTextSize')}</label>
-                      <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.text_size || 0} onChange={(e) => handleElementChange(selectedElement.id, 'text_size', parseInt(e.target.value))} />
-                    </div>
+                   {/* 🚀 [변경] 버튼 전용 메뉴로 글자 크기 설정을 이사시켰으므로 버튼일 때는 숨깁니다! */}
+                    {selectedElement.type !== 'button' && (
+                      <div>
+                        <label className="block text-xs text-neutral-400 mb-1">{t('titleTextSize')}</label>
+                        <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.text_size || 0} onChange={(e) => handleElementChange(selectedElement.id, 'text_size', parseInt(e.target.value))} />
+                      </div>
+                    )}
                   </>
                 )}
 
@@ -1599,6 +1602,21 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
                         <option value="top">Top</option>
                         <option value="bottom">Bottom</option>
                       </select>
+                    </div>
+
+                    {/* 🚀 [추가] 메인 글자 & 우측 글자 크기 독립 제어기 */}
+                    <div className="col-span-2 mt-2 bg-neutral-800 p-2 rounded border border-neutral-700">
+                      <label className="block text-[10px] font-bold text-neutral-400 uppercase mb-2">Text Sizes (px)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] text-neutral-500 mb-1">Main Text Size</label>
+                          <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-1.5 text-white text-xs" placeholder="16" value={selectedElement.text_size || 0} onChange={(e) => handleElementChange(selectedElement.id, 'text_size', parseInt(e.target.value) || 0)} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-neutral-500 mb-1">Right Text Size</label>
+                          <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-1.5 text-white text-xs" placeholder="Auto" value={selectedElement.text_secondary_size || 0} onChange={(e) => handleElementChange(selectedElement.id, 'text_secondary_size', parseInt(e.target.value) || 0)} />
+                        </div>
+                      </div>
                     </div>
 
                     <div className="col-span-2 mt-2">
