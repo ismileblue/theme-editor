@@ -836,7 +836,10 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
       const currentRightColor = isHovered ? rightColorFocused : rightColorNormal;
       // 🚀 안전한 방어막: undefined 대신 'left' 기본값 보장
       let jc = 'flex-start';
-      const innerTransform = isHovered ? `translate(${el.focus_offset_x || 0}px, ${el.focus_offset_y || 0}px)` : 'translate(0px, 0px)';
+      const scaleVal = el.focus_scale !== undefined ? el.focus_scale : 1.0;
+      const innerTransform = isHovered 
+          ? `translate(${el.focus_offset_x || 0}px, ${el.focus_offset_y || 0}px) scale(${scaleVal})` 
+          : 'translate(0px, 0px) scale(1.0)';
       let ai = 'center';
       let ta = (el.text_align || 'left').toLowerCase();
       
