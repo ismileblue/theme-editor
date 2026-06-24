@@ -585,13 +585,13 @@ export default function ThemeEditor() {
   };
 
   const handleGlobalChange = (key, value) => {
-    setThemeData({ ...themeData, [key]: value });
+    setThemeData(prev => ({ ...prev, [key]: value }));
   };
 
   const handleElementChange = (id, key, value) => {
-    setThemeData({
-      ...themeData,
-      main_menu: themeData.main_menu.map(el =>
+    setThemeData(prev => ({
+      ...prev,
+      main_menu: prev.main_menu.map(el =>
         el.id === id ? { ...el, [key]: value } : el
       )
     });
