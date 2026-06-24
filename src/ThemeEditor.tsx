@@ -500,27 +500,87 @@ export default function ThemeEditor() {
     };
   }, [dragInfo]);
 
-  const handleImportJSON = (e) => {
+  const handleImportJSON = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
+    // 🚀 1. 단일 JSON 파일만 불러올 때 (기존 로직 호환)
+    if (file.name.endsWith('.json')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const importedData = JSON.parse(event.target.result);
+          if (importedData && importedData.main_menu) {
+            setThemeData(importedData);
+            setSelectedId(null); 
+            alert(t('importSuccess'));
+          } else alert(t('importFail'));
+        } catch (error) { alert(t('importFail')); }
+      };
+      reader.readAsText(file);
+      e.target.value = ''; 
+      return;
+    }
+
+    // 🚀 2. 대망의 ZIP 파일 통째로 불러오기 (이미지 완벽 복원!)
+    if (file.name.endsWith('.zip')) {
       try {
-        const importedData = JSON.parse(event.target.result);
-        if (importedData && importedData.main_menu) {
-          setThemeData(importedData);
-          setSelectedId(null); 
-          alert(t('importSuccess'));
-        } else {
+        const JSZip = await loadJSZip();
+        const zip = await JSZip.loadAsync(file);
+
+        // ZIP 파일 안에서 config.json 찾기
+        const configEntry = zip.file("config.json");
+        if (!configEntry) {
           alert(t('importFail'));
+          return;
         }
+
+        // JSON 데이터 파싱
+        const configText = await configEntry.async("text");
+        const importedData = JSON.parse(configText);
+        
+        const newPreviewImages = {};
+        const newUploadedFiles = {};
+
+        // 🚀 압축 파일 안의 이미지들을 전부 순회하며 브라우저 메모리에 올리기
+        for (const relativePath in zip.files) {
+          const zipEntry = zip.files[relativePath];
+          // 폴더가 아니고 json 파일도 아닌 것들(이미지 폰트 등)을 뽑아냅니다.
+          if (!zipEntry.dir && relativePath !== "config.json") {
+            const blob = await zipEntry.async("blob");
+            const fileObj = new File([blob], relativePath, { type: blob.type || 'image/png' });
+            newUploadedFiles[relativePath] = fileObj;
+
+            const url = URL.createObjectURL(blob);
+            
+            // 🚀 불러온 이미지 파일명이랑 JSON에 적힌 파일명을 짝지어주어 화면에 띄우기!
+            if (importedData && importedData.main_menu) {
+              importedData.main_menu.forEach(el => {
+                if (el.icon_normal === relativePath) {
+                  newPreviewImages[el.id] = url;
+                  newPreviewImages[`${el.id}_icon_normal`] = url;
+                }
+                if (el.preview_image === relativePath) {
+                  newPreviewImages[`${el.id}_preview_image`] = url;
+                }
+              });
+            }
+          }
+        }
+
+        // 🚀 모든 셋팅과 이미지들을 한 번에 에디터에 적용!
+        setThemeData(importedData);
+        setPreviewImages(prev => ({ ...prev, ...newPreviewImages }));
+        setUploadedFiles(prev => ({ ...prev, ...newUploadedFiles }));
+        setSelectedId(null);
+        alert(t('importSuccess'));
+
       } catch (error) {
-        alert(t('importFail'));
+        console.error(error);
+        alert("Failed to read ZIP file.");
       }
-    };
-    reader.readAsText(file);
-    e.target.value = ''; 
+    }
+    e.target.value = '';
   };
 
   const handleImageUpload = (id, file, targetField) => {
@@ -1570,7 +1630,8 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
         <div className="p-4 border-t border-neutral-700 bg-neutral-800 flex gap-2">
           <label className="flex-1 py-3 bg-neutral-700 hover:bg-neutral-600 text-white font-bold rounded flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-lg text-sm">
             <Upload size={18} /> {t('importBtn')}
-            <input type="file" accept=".json" className="hidden" onChange={handleImportJSON} />
+            {/* 🚀 accept 속성에 .zip을 추가하여 압축 파일을 바로 넣을 수 있게 허용! */}
+            <input type="file" accept=".json,.zip" className="hidden" onChange={handleImportJSON} />
           </label>
           <button 
             onClick={handleDownloadZIP}
