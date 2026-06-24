@@ -584,6 +584,7 @@ export default function ThemeEditor() {
     handleGlobalChange('font', file.name);
   };
 
+  // 🚀 [버그 해결] 항상 최신 상태(prev)를 물려받아 저장하도록 개조!
   const handleGlobalChange = (key, value) => {
     setThemeData(prev => ({ ...prev, [key]: value }));
   };
@@ -594,7 +595,7 @@ export default function ThemeEditor() {
       main_menu: prev.main_menu.map(el =>
         el.id === id ? { ...el, [key]: value } : el
       )
-    });
+    })); // 🚀 [수정됨] 맨 끝에 닫는 괄호 ')' 를 하나 더 추가하여 짝을 완벽하게 맞췄습니다!
   };
 
   const handleElementClick = (e, id) => {
