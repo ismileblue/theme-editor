@@ -836,6 +836,7 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
       const currentRightColor = isHovered ? rightColorFocused : rightColorNormal;
       // 🚀 안전한 방어막: undefined 대신 'left' 기본값 보장
       let jc = 'flex-start';
+      const innerTransform = isHovered ? `translate(${el.focus_offset_x || 0}px, ${el.focus_offset_y || 0}px)` : 'translate(0px, 0px)';
       let ai = 'center';
       let ta = (el.text_align || 'left').toLowerCase();
       
@@ -865,7 +866,10 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
             padding: isIconOnly ? `${el.padding || 0}px` : (ta === 'top' || ta === 'bottom' ? '15px 0' : '0 15px')
           }}>
             {/* 🚀 1. 좌측/중앙을 담당하는 메인 텍스트 영역 */}
-            <div style={{ display: 'flex', flex: 1, alignItems: ai, justifyContent: jc, height: isIconOnly ? '100%' : 'auto' }}>
+            <div style={{ 
+               display: 'flex', flex: 1, alignItems: ai, justifyContent: jc, height: isIconOnly ? '100%' : 'auto',
+               transform: innerTransform, transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)' // 🚀 애니메이션 적용!
+            }}>
               {previewImg ? (
                  // 🚀 [수정] 50% 강제 고정이 아니라 100% 꽉 채우도록 변경 (패딩으로 크기를 조절하게 됩니다)
                  <img src={previewImg} alt="icon" draggable="false" style={{width: isIconOnly ? '100%' : '24px', height: isIconOnly ? '100%' : '24px', marginRight: isIconOnly || ta === 'top' || ta === 'bottom' ? '0' : '10px', marginBottom: (ta === 'top' || ta === 'bottom') && !isIconOnly ? '5px' : '0', objectFit: 'contain'}} />
@@ -1481,6 +1485,24 @@ const rightColorNormal = el.text_right_color ? androidHexToWeb(el.text_right_col
                     {/* 🚀 버튼 내부 텍스트 정렬 드롭다운 */}
                     <div className="col-span-2 mt-2">
                       <label className="block text-xs text-neutral-400 mb-1">{t('textAlign')}</label>
+                      {/* 🚀 [추가] 포커스 애니메이션 종합 세트 (이동 & 줌인) */}
+                    <div className="col-span-2 mt-2 bg-neutral-800 p-2 rounded border border-neutral-700">
+                      <label className="block text-[10px] font-bold text-neutral-400 uppercase mb-2">Focus Animation</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="block text-[10px] text-neutral-500 mb-1">Shift X (px)</label>
+                          <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-1.5 text-white text-xs" placeholder="0" value={selectedElement.focus_offset_x || 0} onChange={(e) => handleElementChange(selectedElement.id, 'focus_offset_x', parseInt(e.target.value) || 0)} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-neutral-500 mb-1">Shift Y (px)</label>
+                          <input type="number" className="w-full bg-neutral-900 border border-neutral-700 rounded p-1.5 text-white text-xs" placeholder="0" value={selectedElement.focus_offset_y || 0} onChange={(e) => handleElementChange(selectedElement.id, 'focus_offset_y', parseInt(e.target.value) || 0)} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-neutral-500 mb-1">Scale (Zoom)</label>
+                          <input type="number" step="0.1" className="w-full bg-neutral-900 border border-neutral-700 rounded p-1.5 text-white text-xs" placeholder="1.0" value={selectedElement.focus_scale !== undefined ? selectedElement.focus_scale : 1.0} onChange={(e) => handleElementChange(selectedElement.id, 'focus_scale', parseFloat(e.target.value) || 1.0)} />
+                        </div>
+                      </div>
+                    </div>
                       <select className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.text_align || 'left'} onChange={(e) => handleElementChange(selectedElement.id, 'text_align', e.target.value)}>
                         <option value="left">Left</option>
                         <option value="center">Center</option>
