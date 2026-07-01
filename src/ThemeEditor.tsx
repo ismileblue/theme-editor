@@ -41,6 +41,7 @@ const translations = {
     typeCircularBattery: "Widget: Circular Battery",
     typeFocusImage: "Widget: Dynamic Focus Image", previewImageLabel: "Focus Preview Image",
     typeBox: "Design Box (Background Split)",
+    typeListBox: "List Box (Scroll Container)",
     layoutCoords: "Layout & Coordinates",
     gravityLabel: "Gravity (Anchor)",
     xLabel: "X (Horiz Offset)",
@@ -86,7 +87,10 @@ const translations = {
     actBg: "Background Settings",
     actTheme: "Theme Selection",
     actTime: "Date & Time Settings",
-    actRoot: "Root Folder (File Manager)"
+    actRoot: "Root Folder (File Manager)",
+    parentIdLabel: "Parent ID (Container)",
+    visibleFocusLabel: "Visible on Focus (Target Button ID)",
+    visibleFocusDesc: "Leave blank to always show. e.g., btn_now"
   },
   ko: {
     language: "언어",
@@ -125,6 +129,7 @@ const translations = {
     typeCircularBattery: "위젯: 원형 배터리",
     typeFocusImage: "위젯: 다이내믹 포커스 이미지", previewImageLabel: "포커스 전용 이미지",
     typeBox: "디자인 박스 (배경 분할용)",
+    typeListBox: "리스트 상자 (스크롤 컨테이너)",
     layoutCoords: "레이아웃 및 좌표",
     gravityLabel: "Gravity (기준점)",
     xLabel: "X (가로 여백)",
@@ -170,7 +175,10 @@ const translations = {
     actBg: "배경화면 설정 (바로가기)",
     actTheme: "테마 선택 화면 (바로가기)",
     actTime: "날짜 및 시간 설정 (바로가기)",
-    actRoot: "전체 폴더 (파일 탐색기)"
+    actRoot: "전체 폴더 (파일 탐색기)",
+    parentIdLabel: "부모 상자 ID (리스트 등)",
+    visibleFocusLabel: "특정 포커스 시 표시 (타겟 버튼 ID)",
+    visibleFocusDesc: "항상 보이려면 비워두세요. 예: btn_now"
   },
   ja: {
     language: "言語",
@@ -209,6 +217,7 @@ const translations = {
     typeCircularBattery: "ウィジェット: 円形バッテリー",
     typeFocusImage: "ウィジェット: フォーカス画像", previewImageLabel: "フォーカス専用画像",
     typeBox: "デザインボックス (背景分割用)",
+    typeListBox: "リストボックス (スクロール)",
     layoutCoords: "レイアウトと座標",
     gravityLabel: "Gravity (基準点)",
     xLabel: "X (水平余白)",
@@ -254,7 +263,10 @@ const translations = {
     actBg: "背景設定",
     actTheme: "テーマ選択",
     actTime: "日付と時刻の設定",
-    actRoot: "ルートフォルダ (ファイル管理)"
+    actRoot: "ルートフォルダ (ファイル管理)",
+    parentIdLabel: "親コンテナID",
+    visibleFocusLabel: "フォーカス時に表示 (ターゲットID)",
+    visibleFocusDesc: "常に表示する場合は空欄。 例: btn_now"
   },
   zh: {
     language: "语言",
@@ -293,6 +305,7 @@ const translations = {
     typeCircularBattery: "小部件：圆形电池",
     typeFocusImage: "小部件：动态焦点图片", previewImageLabel: "焦点预览图片",
     typeBox: "装饰盒子 (背景分割用)",
+    typeListBox: "列表框 (滚动容器)",
     layoutCoords: "布局与坐标",
     gravityLabel: "Gravity (锚点)",
     xLabel: "X (水平偏移)",
@@ -338,7 +351,10 @@ const translations = {
     actBg: "背景设置",
     actTheme: "主题选择",
     actTime: "日期和时间设置",
-    actRoot: "根目录 (文件管理)"
+    actRoot: "根目录 (文件管理)",
+    parentIdLabel: "父级容器 ID",
+    visibleFocusLabel: "获取焦点时显示 (目标按钮 ID)",
+    visibleFocusDesc: "留空表示始终显示。例: btn_now"
   }
 };
 
@@ -379,51 +395,42 @@ export default function ThemeEditor() {
     button_radius: 10,
     main_menu: [
       {
+        id: "main_scroll_list", type: "list_box",
+        x: 10, y: 15, width: 220, height: 290,
+        gravity: "top|left", bg_color: "", radius: -1, padding: 0
+      },
+      {
         id: "my_clock", type: "widget_clock",
-        x: 20, y: 25, width: 220, height: 0,
-        gravity: "top|right",
-        text_size: 22,
-        bg_color: "", radius: -1, padding: 0, text_align: "left"
+        visible_on_focus: "btn_now", // 🚀 [새 엔진] btn_now에 닿았을 때만 보여라!
+        x: 254, y: 18, width: 211, height: 45,
+        gravity: "top|left",
+        text_size: 36,
+        bg_color: "", radius: -1, padding: 0, text_align: "center"
       },
       {
         id: "my_album", type: "widget_album",
-        x: 20, y: 110, width: 220, height: 220,
-        gravity: "top|right",
+        visible_on_focus: "btn_now", // 🚀 [새 엔진] btn_now에 닿았을 때만 보여라!
+        x: 254, y: 75, width: 211, height: 140,
+        gravity: "top|left",
         text_position: "bottom", text_align: "center",
-        bg_color: "#22FFFFFF", radius: 15, padding: 10,
+        bg_color: "", radius: 15, padding: 10,
         text_size: 16, text_secondary_size: 12
       },
       {
-        id: "btn_player", type: "button",
-        x: 15, y: 55, width: 180, height: 45,
+        id: "btn_now", type: "button", parent_id: "main_scroll_list",
+        x: 0, y: 0, width: 0, height: 48,
         text_normal: "Now Playing", icon_normal: "icon_now_playing.png",
         gravity: "top|left", text_size: 16,
         bg_color: "", radius: -1, padding: 0, action: "OPEN_PLAYER",
         focus_index: 0, text_align: "left"
       },
       {
-        id: "btn_music", type: "button",
-        x: 15, y: 115, width: 180, height: 45,
+        id: "btn_music", type: "button", parent_id: "main_scroll_list",
+        x: 0, y: 8, width: 0, height: 48,
         text_normal: "Library", icon_normal: "icon_music.png",
         gravity: "top|left", text_size: 16,
         bg_color: "", radius: -1, padding: 0, action: "OPEN_BROWSER",
         focus_index: 1, text_align: "left"
-      },
-      {
-        id: "btn_bt", type: "button",
-        x: 15, y: 175, width: 180, height: 45,
-        text_normal: "Bluetooth", icon_normal: "icon_bluetooth.png",
-        gravity: "top|left", text_size: 16,
-        bg_color: "", radius: -1, padding: 0, action: "OPEN_BLUETOOTH",
-        focus_index: 2, text_align: "left"
-      },
-      {
-        id: "btn_set", type: "button",
-        x: 15, y: 235, width: 180, height: 45,
-        text_normal: "Settings", icon_normal: "icon_setting.png",
-        gravity: "top|left", text_size: 16,
-        bg_color: "", radius: -1, padding: 0, action: "OPEN_SETTINGS",
-        focus_index: 3, text_align: "left"
       }
     ]
   });
@@ -750,7 +757,23 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
     }
   };
 
-  const getStyleFromElement = (el) => {
+  // 🚀 [신규 엔진] 부모 상자 소속 여부(isChild)에 따라 절대 좌표와 상대 여백을 똑똑하게 전환합니다!
+  const getStyleFromElement = (el, isChild = false) => {
+    if (isChild) {
+      return {
+        position: 'relative', // 💡 부모 상자에 들어갔으므로 절대 좌표(absolute) 봉인 해제!
+        width: `calc(100% - ${el.x * 2}px)`, // 양옆 마진(X)만큼 빼서 너비 꽉 채우기 (MATCH_PARENT)
+        height: el.height > 0 ? `${el.height}px` : 'auto',
+        marginLeft: `${el.x}px`,
+        marginRight: `${el.x}px`,
+        marginTop: `${el.y}px`, // 💡 Y좌표는 윗 버튼과의 줄 간격(Top Margin)으로 작동합니다!
+        flexShrink: 0,
+        userSelect: 'none',
+        WebkitUserSelect: 'none'
+      };
+    }
+
+    // 부모가 없는 독립 위젯일 경우 기존처럼 절대 좌표(absolute)로 도화지에 고정!
     const style = {
       position: 'absolute',
       width: el.width > 0 ? `${el.width}px` : 'auto',
@@ -781,7 +804,7 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
     }
 
     return style;
-  };
+  };;
 
   const renderColorInput = (label, value, onChange) => {
     const hexVal = value || '';
@@ -841,10 +864,11 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
     );
   };
 
-  const renderElement = (el) => {
+  // 🚀 [에러 수리] 괄호 안에 isChild = false 를 넣어 변수를 선언해 주어야 리액트가 알아듣습니다!
+  const renderElement = (el, isChild = false) => {
     const isSelected = selectedId === el.id;
-    const boxStyle = getStyleFromElement(el);
-    
+    const boxStyle = getStyleFromElement(el, isChild); 
+
     const bgColorWeb = el.bg_color ? androidHexToWeb(el.bg_color) : 'transparent';
     const radius = el.radius !== undefined && el.radius !== -1 ? el.radius : themeData.button_radius;
     
@@ -864,6 +888,24 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
     boxStyle.border = (!isPlayMode && isSelected) ? '2px dashed #00FFFF' : '2px solid transparent';
     boxStyle.boxSizing = 'border-box';
     boxStyle.cursor = isPlayMode ? 'default' : (dragInfo.isDragging && dragInfo.id === el.id ? 'grabbing' : 'grab');
+
+if (isPlayMode && el.visible_on_focus && el.visible_on_focus.trim() !== '') {
+        // 현재 마우스가 올라간 버튼이 없으면, 포커스 번호 0번인 버튼을 기본 활성 상태로 간주합니다.
+        let activeId = hoveredId;
+        if (!activeId) {
+            const buttons = themeData.main_menu.filter(e => e.type === 'button').sort((a, b) => (a.focus_index || 0) - (b.focus_index || 0));
+            if (buttons.length > 0) activeId = buttons[0].id;
+        }
+        
+        // 타겟과 활성 버튼이 다르면 화면에서 완전히 안 보이게(클릭도 안 되게) 숨깁니다.
+        if (el.visible_on_focus !== activeId) {
+            boxStyle.opacity = 0;
+            boxStyle.pointerEvents = 'none';
+        } else {
+            boxStyle.opacity = 1;
+            boxStyle.transition = 'opacity 0.2s ease-in-out'; // 부드러운 페이드 인!
+        }
+    }
 
     if (el.type === 'box') {
       const previewImg = (el.icon_normal && el.icon_normal.trim() !== '') ? previewImages[el.id] : null;
@@ -888,7 +930,40 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
         </div>
       );
     }
+if (el.type === 'list_box') {
+      // 🚀 내 안에 소속된 자식(버튼) 요소들을 모두 찾아내고 포커스 순서대로 정렬합니다!
+      const children = themeData.main_menu
+        .filter(child => child.parent_id === el.id)
+        .sort((a, b) => (a.focus_index || 0) - (b.focus_index || 0));
 
+      return (
+        <div 
+          key={el.id} 
+          style={{
+            ...boxStyle, 
+            backgroundColor: bgColorWeb !== 'transparent' ? bgColorWeb : 'rgba(255, 255, 255, 0.05)', 
+            border: (!isPlayMode && isSelected) ? '2px dashed #00FFFF' : '2px dashed rgba(255,255,255,0.3)', 
+            overflowY: 'auto', // 🚀 안드로이드처럼 스크롤 가능하게!
+            overflowX: 'hidden',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start'
+          }} 
+          onMouseDown={(e) => handlePointerDown(e, el.id)}
+          onTouchStart={(e) => handlePointerDown(e, el.id)}
+        >
+          {children.length === 0 ? (
+            <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', flex: 1, pointerEvents:'none'}}>
+              <span style={{color: 'rgba(255,255,255,0.4)', fontSize: '11px', fontWeight: 'bold'}}>{el.id}</span>
+              <span style={{color: 'rgba(255,255,255,0.4)', fontSize: '10px'}}>(List Box)</span>
+            </div>
+          ) : (
+            // 🚀 찾아낸 자식들을 내부에 그려 넣습니다! (isChild 플래그를 true로 넘겨 마진 방식으로 변환)
+            <div style={{width: '100%', display: 'flex', flexDirection: 'column', padding: `${el.padding || 0}px`}}>
+               {children.map(child => renderElement(child, true))}
+            </div>
+          )}
+        </div>
+      );
+    }
     if (el.type === 'button') {
       const isHovered = isPlayMode && hoveredId === el.id;
       
@@ -1243,10 +1318,21 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
           </div>
 
           <div style={{ position: 'relative', width: '100%', height: 'calc(100% - 36px)' }}>
-            {/* 🚀 Z-index(그려지는 순서) 자동 정렬 알고리즘: 박스를 1등, 위젯을 2등, 버튼을 맨 마지막(3등)에 그립니다! */}
-            {themeData.main_menu.filter(el => el.type === 'box').map(el => renderElement(el))}
-            {themeData.main_menu.filter(el => el.type !== 'button' && el.type !== 'box').map(el => renderElement(el))}
-            {themeData.main_menu.filter(el => el.type === 'button').map(el => renderElement(el))}
+            {/* 🚀 [부모-자식 계층 렌더링 완벽 모사] 
+                parent_id가 비어있거나, 등록한 부모가 존재하지 않는 '고아(최상위)' 요소들만 바닥 도화지에 그립니다! 
+                (부모가 있는 자식들은 위에서 작성한 list_box 내부에서 알아서 예쁘게 그려집니다) */}
+            
+            {themeData.main_menu
+               .filter(el => !el.parent_id || !themeData.main_menu.some(p => p.id === el.parent_id))
+               .filter(el => el.type === 'box').map(el => renderElement(el))}
+            
+            {themeData.main_menu
+               .filter(el => !el.parent_id || !themeData.main_menu.some(p => p.id === el.parent_id))
+               .filter(el => el.type !== 'button' && el.type !== 'box').map(el => renderElement(el))}
+            
+            {themeData.main_menu
+               .filter(el => !el.parent_id || !themeData.main_menu.some(p => p.id === el.parent_id))
+               .filter(el => el.type === 'button').map(el => renderElement(el))}
           </div>
         </div>
 
@@ -1355,6 +1441,7 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
                       <div className="text-xs text-neutral-500">
                          {el.type === 'button' && t('typeButton')}
                          {el.type === 'box' && t('typeBox')}
+                         {el.type === 'list_box' && t('typeListBox')}
                          {el.type === 'widget_clock' && t('typeClock')}
                          {el.type === 'widget_analog_clock' && t('typeAnalogClock')}
                          {el.type === 'widget_album' && t('typeAlbum')}
@@ -1424,6 +1511,7 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
                   >
                     <option value="button">{t('typeButton')}</option>
                     <option value="box">{t('typeBox')}</option>
+                    <option value="list_box">{t('typeListBox')}</option>
                     <option value="widget_clock">{t('typeClock')}</option>
                     <option value="widget_analog_clock">{t('typeAnalogClock')}</option>
                     <option value="widget_album">{t('typeAlbum')}</option>
@@ -1432,7 +1520,21 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
                     <option value="widget_focus_image">{t('typeFocusImage')}</option>
                   </select>
                 </div>
-                
+                {/* 🚀 [신규 엔진 UI] 관계형 결합 & 다이내믹 포커스 링크 설정기 */}
+                <div className="col-span-2 mt-2 bg-neutral-800 p-2 rounded border border-neutral-700 shadow-inner">
+                  <label className="block text-[10px] font-bold text-cyan-400 uppercase mb-2">Relational & Dynamic Links</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] text-neutral-400 mb-1">{t('parentIdLabel')}</label>
+                      <input type="text" className="w-full bg-neutral-900 border border-neutral-700 rounded p-1.5 text-white text-xs placeholder-neutral-600" placeholder="e.g. main_scroll_list" value={selectedElement.parent_id || ''} onChange={(e) => handleElementChange(selectedElement.id, 'parent_id', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-neutral-400 mb-1">{t('visibleFocusLabel')}</label>
+                      <input type="text" className="w-full bg-neutral-900 border border-neutral-700 rounded p-1.5 text-white text-xs placeholder-neutral-600" placeholder="e.g. btn_now" value={selectedElement.visible_on_focus || ''} onChange={(e) => handleElementChange(selectedElement.id, 'visible_on_focus', e.target.value)} />
+                    </div>
+                  </div>
+                  <p className="text-[9px] text-neutral-500 mt-1">※ {t('visibleFocusDesc')}</p>
+                </div>
                 <div className="col-span-2 border-t border-neutral-700 pt-4 mt-2">
                   <span className="text-xs font-bold text-neutral-300 uppercase">{t('layoutCoords')}</span>
                 </div>
@@ -1638,6 +1740,7 @@ const [zoomLevel, setZoomLevel] = useState(1.0); // 🚀 [추가] 화면 확대/
                         <option value="OPEN_THEME_SETTINGS">{t('actTheme')}</option>
                         <option value="OPEN_TIME_SETTINGS">{t('actTime')}</option>
                         <option value="OPEN_BRIGHTNESS">{t('actBrightness')}</option>
+                        
                         <option value="OPEN_STORAGE_INFO">{t('actStorage')}</option>
                       </select>
                     </div>
