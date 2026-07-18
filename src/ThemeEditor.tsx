@@ -5,6 +5,7 @@ import { Download, Plus, Trash2, Settings, List, Smartphone, Type, Image as Imag
 // 다국어 번역 사전
 const translations = {
   en: {
+    deleteConfirm: "Are you sure you want to delete this element?",
     language: "Language",
     preview: "Preview",
     editMode: "Edit Mode",
@@ -97,6 +98,7 @@ const translations = {
     visibleFocusDesc: "Leave blank to always show. e.g., btn_now"
   },
   ko: {
+    deleteConfirm: "정말 삭제하시겠습니까? 요소 :",
     language: "언어",
     preview: "미리보기",
     editMode: "편집 모드",
@@ -189,6 +191,7 @@ const translations = {
     visibleFocusDesc: "항상 보이려면 비워두세요. 예: btn_now"
   },
   ja: {
+    deleteConfirm: "本当にこの要素を削除しますか？ 要素 :",
     language: "言語",
     preview: "プレビュー",
     editMode: "編集モード",
@@ -281,6 +284,7 @@ const translations = {
     visibleFocusDesc: "常に表示する場合は空欄。 例: btn_now"
   },
   zh: {
+    deleteConfirm: "确定要删除此元素吗？ 元素 :",
     language: "语言",
     preview: "预览",
     editMode: "编辑模式",
@@ -935,6 +939,16 @@ if (isPlayMode && el.visible_on_focus && el.visible_on_focus.trim() !== '') {
           }} 
           onMouseDown={(e) => handlePointerDown(e, el.id)}
           onTouchStart={(e) => handlePointerDown(e, el.id)}
+          onContextMenu={(e) => {
+            if (isPlayMode) return; // 🚀 플레이 모드에서는 삭제 기능 잠금!
+            e.preventDefault(); // 🚀 브라우저 기본 우클릭 메뉴(새 탭 열기 등) 완벽 차단!
+            e.stopPropagation(); // 🚀 클릭 신호가 부모 상자로 새어나가는 것 방지
+            
+            // 💡 실수로 우클릭해서 공들인 디자인이 날아가는 걸 막기 위한 0.1초 안전장치
+            if (window.confirm(`${t('deleteConfirm')} [ ${el.id} ]`)) {
+              handleDeleteElement(el.id);
+            }
+          }}
         >
           {previewImg ? (
             <img src={previewImg} alt="box_img" draggable="false" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
@@ -965,6 +979,16 @@ if (el.type === 'list_box') {
           }} 
           onMouseDown={(e) => handlePointerDown(e, el.id)}
           onTouchStart={(e) => handlePointerDown(e, el.id)}
+          onContextMenu={(e) => {
+            if (isPlayMode) return; // 🚀 플레이 모드에서는 삭제 기능 잠금!
+            e.preventDefault(); // 🚀 브라우저 기본 우클릭 메뉴(새 탭 열기 등) 완벽 차단!
+            e.stopPropagation(); // 🚀 클릭 신호가 부모 상자로 새어나가는 것 방지
+            
+            // 💡 실수로 우클릭해서 공들인 디자인이 날아가는 걸 막기 위한 0.1초 안전장치
+            if (window.confirm(`${t('deleteConfirm')} [ ${el.id} ]`)) {
+              handleDeleteElement(el.id);
+            }
+          }}
         >
           {children.length === 0 ? (
             <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', flex: 1, pointerEvents:'none'}}>
@@ -1019,6 +1043,16 @@ if (el.type === 'list_box') {
           key={el.id} style={boxStyle} 
           onMouseDown={(e) => handlePointerDown(e, el.id)}
           onTouchStart={(e) => handlePointerDown(e, el.id)}
+          onContextMenu={(e) => {
+            if (isPlayMode) return; // 🚀 플레이 모드에서는 삭제 기능 잠금!
+            e.preventDefault(); // 🚀 브라우저 기본 우클릭 메뉴(새 탭 열기 등) 완벽 차단!
+            e.stopPropagation(); // 🚀 클릭 신호가 부모 상자로 새어나가는 것 방지
+            
+            // 💡 실수로 우클릭해서 공들인 디자인이 날아가는 걸 막기 위한 0.1초 안전장치
+            if (window.confirm(`${t('deleteConfirm')} [ ${el.id} ]`)) {
+              handleDeleteElement(el.id);
+            }
+          }}
           onMouseEnter={() => setHoveredId(el.id)}
           onMouseLeave={() => setHoveredId(null)}
           className="flex items-center text-white overflow-hidden transition-all duration-200"
@@ -1068,6 +1102,16 @@ if (el.type === 'list_box') {
           style={{...boxStyle, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}} 
           onMouseDown={(e) => handlePointerDown(e, el.id)}
           onTouchStart={(e) => handlePointerDown(e, el.id)}
+          onContextMenu={(e) => {
+            if (isPlayMode) return; // 🚀 플레이 모드에서는 삭제 기능 잠금!
+            e.preventDefault(); // 🚀 브라우저 기본 우클릭 메뉴(새 탭 열기 등) 완벽 차단!
+            e.stopPropagation(); // 🚀 클릭 신호가 부모 상자로 새어나가는 것 방지
+            
+            // 💡 실수로 우클릭해서 공들인 디자인이 날아가는 걸 막기 위한 0.1초 안전장치
+            if (window.confirm(`${t('deleteConfirm')} [ ${el.id} ]`)) {
+              handleDeleteElement(el.id);
+            }
+          }}
         >
           <div style={{ color: androidHexToWeb(themeData.textPrimary), textAlign: 'center', lineHeight: '1.2' }}>
             <div style={{ fontSize: el.text_size > 0 ? `${el.text_size * 2.1}px` : '42px', fontWeight: 'bold' }}>17:22</div>
@@ -1091,6 +1135,16 @@ if (el.type === 'list_box') {
           style={{...boxStyle, display: 'flex', justifyContent: 'center', alignItems: 'center'}} 
           onMouseDown={(e) => handlePointerDown(e, el.id)}
           onTouchStart={(e) => handlePointerDown(e, el.id)}
+          onContextMenu={(e) => {
+            if (isPlayMode) return; // 🚀 플레이 모드에서는 삭제 기능 잠금!
+            e.preventDefault(); // 🚀 브라우저 기본 우클릭 메뉴(새 탭 열기 등) 완벽 차단!
+            e.stopPropagation(); // 🚀 클릭 신호가 부모 상자로 새어나가는 것 방지
+            
+            // 💡 실수로 우클릭해서 공들인 디자인이 날아가는 걸 막기 위한 0.1초 안전장치
+            if (window.confirm(`${t('deleteConfirm')} [ ${el.id} ]`)) {
+              handleDeleteElement(el.id);
+            }
+          }}
         >
            <div style={{
              width: `${clockSize}px`, height: `${clockSize}px`, 
@@ -1135,6 +1189,16 @@ if (el.type === 'list_box') {
           style={{...boxStyle, display: 'flex', flexDirection: flexDir, alignItems: 'center', justifyContent: 'center', gap: isHorizontal ? '15px' : '5px'}} 
           onMouseDown={(e) => handlePointerDown(e, el.id)}
           onTouchStart={(e) => handlePointerDown(e, el.id)}
+          onContextMenu={(e) => {
+            if (isPlayMode) return; // 🚀 플레이 모드에서는 삭제 기능 잠금!
+            e.preventDefault(); // 🚀 브라우저 기본 우클릭 메뉴(새 탭 열기 등) 완벽 차단!
+            e.stopPropagation(); // 🚀 클릭 신호가 부모 상자로 새어나가는 것 방지
+            
+            // 💡 실수로 우클릭해서 공들인 디자인이 날아가는 걸 막기 위한 0.1초 안전장치
+            if (window.confirm(`${t('deleteConfirm')} [ ${el.id} ]`)) {
+              handleDeleteElement(el.id);
+            }
+          }}
         >
           <div style={{ flexShrink: 0, width: `${imgSize}px`, height: `${imgSize}px`, backgroundColor: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             {previewImg ? (
@@ -1164,6 +1228,16 @@ if (el.type === 'list_box') {
           style={{...boxStyle, display: 'flex', justifyContent: 'center', alignItems: 'center'}} 
           onMouseDown={(e) => handlePointerDown(e, el.id)}
           onTouchStart={(e) => handlePointerDown(e, el.id)}
+          onContextMenu={(e) => {
+            if (isPlayMode) return; // 🚀 플레이 모드에서는 삭제 기능 잠금!
+            e.preventDefault(); // 🚀 브라우저 기본 우클릭 메뉴(새 탭 열기 등) 완벽 차단!
+            e.stopPropagation(); // 🚀 클릭 신호가 부모 상자로 새어나가는 것 방지
+            
+            // 💡 실수로 우클릭해서 공들인 디자인이 날아가는 걸 막기 위한 0.1초 안전장치
+            if (window.confirm(`${t('deleteConfirm')} [ ${el.id} ]`)) {
+              handleDeleteElement(el.id);
+            }
+          }}
         >
           <div style={{ width: '100%', height: '100%', border: `2px solid ${androidHexToWeb(themeData.textPrimary)}`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: androidHexToWeb(themeData.textPrimary) }}>
             <span style={{ fontSize: el.text_size > 0 ? `${el.text_size}px` : '12px', fontWeight: 'bold' }}>100%</span>
@@ -1186,6 +1260,16 @@ if (el.type === 'list_box') {
           style={{...boxStyle, display: 'flex', justifyContent: 'center', alignItems: 'center'}} 
           onMouseDown={(e) => handlePointerDown(e, el.id)}
           onTouchStart={(e) => handlePointerDown(e, el.id)}
+          onContextMenu={(e) => {
+            if (isPlayMode) return; // 🚀 플레이 모드에서는 삭제 기능 잠금!
+            e.preventDefault(); // 🚀 브라우저 기본 우클릭 메뉴(새 탭 열기 등) 완벽 차단!
+            e.stopPropagation(); // 🚀 클릭 신호가 부모 상자로 새어나가는 것 방지
+            
+            // 💡 실수로 우클릭해서 공들인 디자인이 날아가는 걸 막기 위한 0.1초 안전장치
+            if (window.confirm(`${t('deleteConfirm')} [ ${el.id} ]`)) {
+              handleDeleteElement(el.id);
+            }
+          }}
         >
           <div style={{ position: 'relative', width: `${batSize}px`, height: `${batSize}px`, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <svg width={batSize} height={batSize} style={{ transform: 'rotate(-90deg)', position: 'absolute', top: 0, left: 0 }}>
@@ -1222,6 +1306,16 @@ if (el.type === 'list_box') {
           style={{...boxStyle, overflow:'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center'}}
           onMouseDown={(e) => handlePointerDown(e, el.id)}
           onTouchStart={(e) => handlePointerDown(e, el.id)}
+          onContextMenu={(e) => {
+            if (isPlayMode) return; // 🚀 플레이 모드에서는 삭제 기능 잠금!
+            e.preventDefault(); // 🚀 브라우저 기본 우클릭 메뉴(새 탭 열기 등) 완벽 차단!
+            e.stopPropagation(); // 🚀 클릭 신호가 부모 상자로 새어나가는 것 방지
+            
+            // 💡 실수로 우클릭해서 공들인 디자인이 날아가는 걸 막기 위한 0.1초 안전장치
+            if (window.confirm(`${t('deleteConfirm')} [ ${el.id} ]`)) {
+              handleDeleteElement(el.id);
+            }
+          }}
         >
            {displayImg ? (
              <img src={displayImg} alt="focus_preview" draggable="false" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
@@ -1401,7 +1495,16 @@ if (el.type === 'list_box') {
               <div className="mb-6">
                 <label className="block text-xs font-bold text-neutral-400 mb-1 uppercase tracking-wider">{t('customFont')}</label>
                 <div className="flex gap-2">
-                  <input type="text" className="flex-1 bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm placeholder-neutral-600" placeholder={t('fontPlaceholder')} value={themeData.font} onChange={(e) => handleGlobalChange('font', e.target.value)} />
+                <input type="text" className="flex-1 bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm placeholder-neutral-600" placeholder={t('fontPlaceholder')} value={themeData.font || ''} onChange={(e) => {
+                  const newVal = e.target.value;
+                  handleGlobalChange('font', newVal); // JSON 데이터 업데이트
+                  
+                  // 🚀 [폰트 초기화 엔진] 칸이 텅 비워지면, 브라우저 메모리에 올라간 폰트(미리보기)도 완전히 파쇄!
+                  if (!newVal || newVal.trim() === '') {
+                    setFontUrl(null);
+                    setFontFamilyName('');
+                  }
+                }} />
                   <label className="bg-neutral-700 hover:bg-neutral-600 text-white rounded px-3 py-2 cursor-pointer flex items-center justify-center transition-colors text-sm whitespace-nowrap" title={t('fontUpload')}>
                     <Type size={16} className="mr-2"/> {t('fontUpload')}
                     <input type="file" accept=".ttf,.otf,.woff,.woff2" className="hidden" onChange={handleFontUpload} />
