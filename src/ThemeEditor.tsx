@@ -88,6 +88,10 @@ const translations = {
     actTheme: "Theme Selection",
     actTime: "Date & Time Settings",
     actRoot: "Root Folder (File Manager)",
+    actRadio: "FM Radio",
+    actAudiobooks: "Audiobooks Library",
+    actPodcasts: "Podcasts Library", // 🚀 [추가] 영어
+    actCoverFlow: "Cover Flow (3D Albums)",
     parentIdLabel: "Parent ID (Container)",
     visibleFocusLabel: "Visible on Focus (Target Button ID)",
     visibleFocusDesc: "Leave blank to always show. e.g., btn_now"
@@ -176,6 +180,10 @@ const translations = {
     actTheme: "테마 선택 화면 (바로가기)",
     actTime: "날짜 및 시간 설정 (바로가기)",
     actRoot: "전체 폴더 (파일 탐색기)",
+    actRadio: "FM 라디오 (Radio)",
+    actAudiobooks: "오디오북 (Audiobooks)",
+    actPodcasts: "팟캐스트 (Podcasts)", // 🚀 [추가] 한국어
+    actCoverFlow: "커버 플로우 (3D 앨범 뷰)",
     parentIdLabel: "부모 상자 ID (리스트 등)",
     visibleFocusLabel: "특정 포커스 시 표시 (타겟 버튼 ID)",
     visibleFocusDesc: "항상 보이려면 비워두세요. 예: btn_now"
@@ -264,6 +272,10 @@ const translations = {
     actTheme: "テーマ選択",
     actTime: "日付と時刻の設定",
     actRoot: "ルートフォルダ (ファイル管理)",
+    actRadio: "FMラジオ",
+    actAudiobooks: "オーディオブック",
+    actPodcasts: "ポッドキャスト", // 🚀 [추가] 일본어
+    actCoverFlow: "カバーフロー (3Dアルバム)",
     parentIdLabel: "親コンテナID",
     visibleFocusLabel: "フォーカス時に表示 (ターゲットID)",
     visibleFocusDesc: "常に表示する場合は空欄。 例: btn_now"
@@ -352,6 +364,10 @@ const translations = {
     actTheme: "主题选择",
     actTime: "日期和时间设置",
     actRoot: "根目录 (文件管理)",
+    actRadio: "FM 收音机",
+    actAudiobooks: "有声读物 (Audiobooks)",
+    actPodcasts: "播客 (Podcasts)", // 🚀 [추가] 중국어
+    actCoverFlow: "封面流 (3D 专辑)",
     parentIdLabel: "父级容器 ID",
     visibleFocusLabel: "获取焦点时显示 (目标按钮 ID)",
     visibleFocusDesc: "留空表示始终显示。例: btn_now"
@@ -1730,6 +1746,10 @@ if (el.type === 'list_box') {
                       <select className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-sm" value={selectedElement.action || 'OPEN_PLAYER'} onChange={(e) => handleElementChange(selectedElement.id, 'action', e.target.value)}>
                         <option value="OPEN_PLAYER">{t('actNowPlaying')}</option>
                         <option value="OPEN_BROWSER">{t('actLibrary')}</option>
+                        <option value="OPEN_RADIO">{t('actRadio')}</option>
+                        <option value="OPEN_AUDIOBOOKS">{t('actAudiobooks')}</option>
+                        <option value="OPEN_PODCASTS">{t('actPodcasts')}</option> {/* 🚀 [여기에 신규 추가!!] 팟캐스트 바로가기 */}
+                        <option value="OPEN_COVER_FLOW">{t('actCoverFlow')}</option>
                         <option value="OPEN_ROOT_FOLDER">{t('actRoot')}</option>
                         <option value="OPEN_BLUETOOTH">{t('actBluetooth')}</option>
                         <option value="OPEN_WIFI">{t('actWifi')}</option>
@@ -1740,7 +1760,6 @@ if (el.type === 'list_box') {
                         <option value="OPEN_THEME_SETTINGS">{t('actTheme')}</option>
                         <option value="OPEN_TIME_SETTINGS">{t('actTime')}</option>
                         <option value="OPEN_BRIGHTNESS">{t('actBrightness')}</option>
-                        
                         <option value="OPEN_STORAGE_INFO">{t('actStorage')}</option>
                       </select>
                     </div>
